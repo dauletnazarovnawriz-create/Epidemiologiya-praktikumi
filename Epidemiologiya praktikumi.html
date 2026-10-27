@@ -1,0 +1,1444 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Interaktiv epidemiologiya praktikumi">
+<title>Epidemiologik praktikum</title>
+<style>
+  :root{
+    --bg:#0f172a; --card:#1e293b; --card2:#243349; --text:#e2e8f0; --muted:#94a3b8;
+    --accent:#38bdf8; --good:#34d399; --bad:#f87171; --warn:#fbbf24; --line:#334155;
+    --purple:#a78bfa;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif; background:var(--bg); color:var(--text); min-height:100vh;}
+  header{padding:20px 24px 8px;}
+  header h1{font-size:1.5rem; color:var(--accent);}
+  header p{color:var(--muted); font-size:.9rem; margin-top:4px;}
+  nav{display:flex; gap:8px; padding:14px 24px; flex-wrap:wrap;}
+  nav button{background:var(--card); color:var(--muted); border:1px solid var(--line); padding:9px 16px; border-radius:10px; cursor:pointer; font-size:.92rem;}
+  nav button:hover{color:var(--text);}
+  nav button.active{background:var(--accent); color:#082f49; border-color:var(--accent); font-weight:600;}
+  main{max-width:900px; margin:0 auto; padding:10px 24px 60px;}
+  .screen{display:none;}
+  .screen.active{display:block;}
+  .card{background:var(--card); border:1px solid var(--line); border-radius:14px; padding:20px; margin-bottom:16px;}
+  h2{font-size:1.2rem; margin-bottom:10px;}
+  h3{font-size:1rem; margin:14px 0 8px; color:var(--accent);}
+  p,li{font-size:.95rem; line-height:1.55;}
+  ul,ol{padding-left:22px;} li{margin:4px 0;}
+  .muted{color:var(--muted);}
+  .btn{background:var(--accent); color:#082f49; border:none; padding:9px 16px; border-radius:9px; cursor:pointer; font-size:.9rem; font-weight:600; margin:4px 6px 4px 0;}
+  .btn.ghost{background:var(--card2); color:var(--text); border:1px solid var(--line); font-weight:500;}
+  .btn.good{background:var(--good); color:#052e1f;}
+  .btn:disabled{opacity:.45; cursor:not-allowed;}
+  input[type=text],input[type=number]{background:var(--bg); border:1px solid var(--line); color:var(--text); padding:9px 12px; border-radius:9px; font-size:.95rem; width:220px; outline:none;}
+  .tag{display:inline-block; background:var(--card2); border:1px solid var(--line); color:var(--muted); border-radius:20px; padding:2px 12px; font-size:.78rem; margin-left:8px;}
+  .tag.done{color:var(--good); border-color:var(--good);}
+  .sol{background:var(--bg); border-left:3px solid var(--accent); border-radius:0 8px 8px 0; padding:12px 14px; margin-top:12px; display:none; font-size:.92rem;}
+  .hint{background:#3b2f0b; border-left:3px solid var(--warn); border-radius:0 8px 8px 0; padding:12px 14px; margin-top:12px; display:none; font-size:.92rem;}
+  table{border-collapse:collapse; margin:10px 0; font-size:.9rem; width:100%; max-width:600px;}
+  th,td{border:1px solid var(--line); padding:7px 12px; text-align:center;}
+  th{background:var(--card2);}
+  .chat{height:400px; overflow-y:auto; background:var(--bg); border:1px solid var(--line); border-radius:12px; padding:14px; margin-bottom:12px;}
+  .msg{max-width:80%; padding:10px 14px; border-radius:14px; margin-bottom:10px; font-size:.92rem; line-height:1.5; white-space:pre-wrap;}
+  .msg.bot{background:var(--card2); border:1px solid var(--line); border-radius:14px 14px 14px 4px;}
+  .msg.user{background:#075985; margin-left:auto; border-radius:14px 14px 4px 14px;}
+  .row{display:flex; gap:8px; flex-wrap:wrap; align-items:center;}
+  .scorebar{display:flex; gap:10px; flex-wrap:wrap; margin:6px 0 14px;}
+  .scorebar span{background:var(--card2); border:1px solid var(--line); padding:5px 12px; border-radius:20px; font-size:.85rem; color:var(--muted);}
+  .scorebar span.got{color:var(--good); border-color:var(--good);}
+  .step{display:flex; gap:14px; align-items:flex-start; margin:12px 0;}
+  .stepnum{flex:0 0 34px; height:34px; border-radius:50%; background:var(--accent); color:#082f49; font-weight:700; display:flex; align-items:center; justify-content:center;}
+  .gloss td{text-align:left;}
+  .gloss td:first-child{font-weight:600; color:var(--accent); white-space:nowrap;}
+  .gloss td:nth-child(2){color:var(--muted); white-space:nowrap;}
+  .st-hero{background:linear-gradient(135deg,#1e293b,#243349); border:1px solid var(--line); border-radius:14px; padding:18px; margin-bottom:16px;}
+  .st-hero h2{color:var(--purple);}
+  .st-topics{display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:12px; margin:14px 0;}
+  .st-topic{background:var(--bg); border:2px solid var(--line); border-radius:12px; padding:14px; cursor:pointer;}
+  .st-topic:hover{border-color:var(--purple);}
+  .st-topic .ic{font-size:1.6rem;}
+  .st-topic h4{font-size:.98rem; margin:6px 0 4px;}
+  .st-topic p{font-size:.82rem; color:var(--muted);}
+  .st-topic .meta{font-size:.75rem; color:var(--purple); margin-top:6px;}
+  .st-scenario{background:var(--bg); border-left:4px solid var(--purple); border-radius:0 10px 10px 0; padding:14px 16px; margin:10px 0 14px; font-size:.94rem;}
+  .st-scenario b{color:var(--purple);}
+  .opt-list{list-style:none; padding:0; margin:0; display:grid; gap:8px;}
+  .opt-list li{background:var(--card2); border:2px solid var(--line); border-radius:10px; padding:12px 14px; cursor:pointer; font-size:.92rem;}
+  .opt-list li:hover{border-color:var(--purple);}
+  .opt-list li.correct{background:#052e1f; border-color:var(--good);}
+  .opt-list li.wrong{background:#3b1010; border-color:var(--bad);}
+  .opt-list li .lbl{font-weight:700; color:var(--purple); margin-right:8px;}
+  .opt-list li.correct .lbl{color:var(--good);}
+  .opt-list li.wrong .lbl{color:var(--bad);}
+  .st-feedback{margin-top:12px; padding:12px 14px; border-radius:10px; font-size:.92rem; display:none;}
+  .st-feedback.good{display:block; background:#052e1f; border:1px solid var(--good);}
+  .st-feedback.bad{display:block; background:#3b1010; border:1px solid var(--bad);}
+  .ob-answers{display:flex; flex-wrap:wrap; gap:8px; margin-top:8px;}
+  .ob-answers button{background:#1e1b4b; border:1px solid var(--purple); color:var(--text); padding:8px 14px; border-radius:8px; cursor:pointer; font-size:.88rem;}
+  .ob-answers button:hover{background:#312e81;}
+  @media(max-width:600px){
+    header, nav, main{padding-left:14px; padding-right:14px;}
+    .msg{max-width:92%;}
+    input[type=text],input[type=number]{width:100%;}
+  }
+</style>
+</head>
+<body>
+<header>
+  <h1>🦠 Epidemiologik praktikum</h1>
+  <p>Boshlash · Vazifalar · Kasallik o'chog'i · Vaziyatli masalalar · Hisobot · Lug'at · AI-yordamchi</p>
+</header>
+
+<nav>
+  <button data-tab="start" class="active">Boshlash</button>
+  <button data-tab="tasks">Vazifalar</button>
+  <button data-tab="outbreak">Kasallik o'chog'i</button>
+  <button data-tab="situations">Vaziyatli masalalar</button>
+  <button data-tab="report">Hisobot</button>
+  <button data-tab="glossary">Lug'at</button>
+  <button data-tab="mentor">AI-yordamchi</button>
+</nav>
+
+<main>
+
+<section id="start" class="screen active">
+  <div class="card">
+    <h2>Xush kelibsiz! 👋</h2>
+    <p>Bu — interaktiv epidemiologiya mashg'uloti. Siz hisob-kitoblar qilasiz, o'choqlarni surushtirasiz, vaziyatli masalalarni yechasiz va AI-yordamchidan bilim olasiz.</p>
+  </div>
+  <div class="card">
+    <h2>Mashg'ulot qanday o'tadi</h2>
+    <div class="step"><div class="stepnum">1</div><div><b>Ismingizni kiriting.</b> Natijalar shu qurilmada saqlanadi.</div></div>
+    <div class="step"><div class="stepnum">2</div><div><b>Vazifalar.</b> 10 ta ko'p bosqichli hisob-kitob.</div></div>
+    <div class="step"><div class="stepnum">3</div><div><b>Kasallik o'chog'i.</b> 10+ xil o'choq, har birida 10 ta savol.</div></div>
+    <div class="step"><div class="stepnum">4</div><div><b>Vaziyatli masalalar.</b> 4 variantli testlar.</div></div>
+    <div class="step"><div class="stepnum">5</div><div><b>Lug'at va AI-yordamchi.</b></div></div>
+  </div>
+  <div class="card">
+    <h2>Ma'lumotlaringiz</h2>
+    <div class="row" style="margin-bottom:10px;">
+      <input type="text" id="stName" placeholder="Familiya va ismingiz" style="flex:1; min-width:240px;">
+      <button class="btn" onclick="saveName()">Saqlash</button>
+    </div>
+    <p class="muted" id="nameInfo" style="margin-bottom:10px;"></p>
+    <div class="row">
+      <button class="btn ghost" onclick="downloadReport()">📄 Hisobotni yuklab olish (.txt)</button>
+      <button class="btn ghost" onclick="resetAll()">🗑 Natijalarni tozalash</button>
+    </div>
+  </div>
+  <button class="btn" onclick="showTab('tasks')">Vazifalardan boshlash →</button>
+</section>
+
+<section id="tasks" class="screen">
+  <div class="card">
+    <h2>Vazifalar <span class="muted" style="font-size:.85rem">ball faqat birinchi urinish uchun</span></h2>
+    <div class="scorebar" id="scorebar"></div>
+    <div id="taskArea"></div>
+  </div>
+</section>
+
+<section id="outbreak" class="screen">
+  <div class="card">
+    <h2>Kasallik o'chog'ida surushtiruv o'tkazish</h2>
+    <div id="obIntro"></div>
+    <div class="chat" id="obChat"></div>
+    <div class="row" id="obQuick"></div>
+    <div class="row" style="margin-top:10px;">
+      <input type="text" id="obInput" placeholder="Savol yoki ma'lumot so'rovi yozing..." style="flex:1; min-width:220px;">
+      <button class="btn" onclick="obSend()">Yuborish</button>
+    </div>
+  </div>
+</section>
+
+<section id="situations" class="screen">
+  <div id="stRoot"></div>
+</section>
+
+<section id="report" class="screen"><div class="card" id="rpRoot"></div></section>
+
+<section id="glossary" class="screen">
+  <div class="card">
+    <h2>Atamalar lug'ati</h2>
+    <table class="gloss">
+      <tr><th>Atama (UZ)</th><th>Ruscha</th><th>Ma'no</th></tr>
+      <tr><td>Kasallanish (insidensiya)</td><td>заболеваемость</td><td>Muayyan davrda yangi holatlar soni.</td></tr>
+      <tr><td>Tarqalganlik (prevalensiya)</td><td>распространённость</td><td>Ma'lum paytda mavjud holatlar ulushi.</td></tr>
+      <tr><td>Nisby xavf (RR)</td><td>относительный риск</td><td>Ko'rilgan/nazorat xavf nisbati.</td></tr>
+      <tr><td>Imkoniyatlar nisbati (OR)</td><td>отношение шансов</td><td>OR = (a·d)/(b·c).</td></tr>
+      <tr><td>Sezgirlik</td><td>чувствительность</td><td>TP/(TP+FN)·100%.</td></tr>
+      <tr><td>Spesifiklik</td><td>специфичность</td><td>TN/(TN+FP)·100%.</td></tr>
+      <tr><td>Letallik (CFR)</td><td>летальность</td><td>O'lganlar / kasallanganlar · 100%.</td></tr>
+      <tr><td>CAGR</td><td>среднегодовой темп роста</td><td>(oxirgi/boshlang'ich)^(1/n) − 1.</td></tr>
+      <tr><td>Qamrov</td><td>охват вакцинацией</td><td>Emlanganlar / kerak bo'lganlar · 100%.</td></tr>
+      <tr><td>O'choqdagi kasallanish darajasi</td><td>заболеваемость в очаге</td><td>Kasallanganlar / xavf ostidagilar · 100%.</td></tr>
+      <tr><td>Kasallik o'chog'i</td><td>вспышка</td><td>Kutilgandan ortiq holatlar to'planishi.</td></tr>
+      <tr><td>Surushtiruv o'tkazish</td><td>расследование</td><td>O'choq sabablarini aniqlash.</td></tr>
+      <tr><td>Sapronoz</td><td>сапроноз</td><td>Atrof-muhitdan yuqadigan infeksiya.</td></tr>
+      <tr><td>O'ta xavfli infeksiya</td><td>особо опасная инфекция</td><td>Karantin talab qiladigan infeksiya.</td></tr>
+      <tr><td>Karantin</td><td>карантин</td><td>Tarqalishni to'xtatish choralari.</td></tr>
+      <tr><td>Dezinfeksiya</td><td>дезинфекция</td><td>Patogen mikroorganizmlarni yo'q qilish.</td></tr>
+      <tr><td>Dezinseksiya</td><td>дезинсекция</td><td>Hasharotlarni yo'q qilish.</td></tr>
+      <tr><td>Deratizatsiya</td><td>дератизация</td><td>Kemiruvchilarni yo'q qilish.</td></tr>
+      <tr><td>Sterilizatsiya</td><td>стерилизация</td><td>Barcha mikroorganizmlarni yo'q qilish.</td></tr>
+    </table>
+  </div>
+</section>
+
+<section id="mentor" class="screen">
+  <div class="card">
+    <h2>AI-yordamchi</h2>
+    <div class="chat" id="mChat"></div>
+    <div class="row" style="margin-bottom:8px;" id="mQuick"></div>
+    <div class="row">
+      <input type="text" id="mInput" placeholder="Masalan: CAGR qanday hisoblanadi?" style="flex:1; min-width:220px;">
+      <button class="btn" onclick="mSend()">So'rash</button>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<script>
+/* ================= NAV ================= */
+function showTab(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('active', b.dataset.tab===id));
+  if(id==='tasks') renderTasks();
+  if(id==='situations') renderSituationsHome();
+  if(id==='outbreak') renderObIntro();
+  if(id==='report') renderReport();
+}
+document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>showTab(b.dataset.tab));
+
+/* ================= STORAGE ================= */
+const STORE_KEY='epi_praktikum_uz_v6';
+function loadState(){ try{ return JSON.parse(localStorage.getItem(STORE_KEY))||{}; }catch(e){ return {}; } }
+function saveState(st){ try{ localStorage.setItem(STORE_KEY, JSON.stringify(st)); }catch(e){} }
+let GLOBAL=loadState();
+if(!GLOBAL.tasks) GLOBAL.tasks={};
+if(!GLOBAL.sit) GLOBAL.sit={};
+if(!GLOBAL.ob) GLOBAL.ob={};
+if(!GLOBAL.hist) GLOBAL.hist=[];
+if(typeof GLOBAL.name!=='string') GLOBAL.name='';
+saveState(GLOBAL);
+
+function saveName(){
+  const v=document.getElementById('stName').value.trim();
+  if(!v){ document.getElementById('nameInfo').textContent='Iltimos, ismingizni yozing.'; return; }
+  GLOBAL.name=v; saveState(GLOBAL); renderNameInfo();
+}
+function renderNameInfo(){
+  const el=document.getElementById('nameInfo');
+  el.textContent = GLOBAL.name ? `✔ Saqlangan: ${GLOBAL.name}.` : 'Ism hali kiritilmagan.';
+  document.getElementById('stName').value=GLOBAL.name||'';
+}
+function resetAll(){
+  if(!confirm("Barcha natijalar o'chiriladi. Davom etasizmi?")) return;
+  localStorage.removeItem(STORE_KEY);
+  GLOBAL={tasks:{}, sit:{}, ob:{}, name:'', hist:[]};
+  taskState={};
+  OB = createObFresh();
+  renderNameInfo(); renderTasks(); renderSituationsHome(); renderObIntro();
+  document.getElementById('obChat').innerHTML='';
+  document.getElementById('obQuick').innerHTML='';
+}
+function downloadReport(){
+  const t=new Date();
+  const ts=`${t.getFullYear()}-${String(t.getMonth()+1).padStart(2,'0')}-${String(t.getDate()).padStart(2,'0')}`;
+  const lines=[`EPIDEMIOLOGIK PRAKTIKUM — HISOBOT`,`Sana: ${ts}`,`Talaba: ${GLOBAL.name||'(kiritilmagan)'}`,``];
+  let score=0;
+  TASK_DEFS.forEach(d=>{
+    const s=GLOBAL.tasks[d.key];
+    if(!s||s.attempts===0){ lines.push(`${d.title}: kiritilmagan`); return; }
+    if(s.attempts===1&&s.solvedFirst) score++;
+    lines.push(`${d.title}: ${s.attempts} urinish`);
+  });
+  lines.push(``, `Ball: ${score} / ${TASK_DEFS.length}`);
+  const blob=new Blob([lines.join('\n')],{type:'text/plain;charset=utf-8'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download=`hisobot_${(GLOBAL.name||'talaba').replace(/\s+/g,'_')}.txt`;
+  a.click(); URL.revokeObjectURL(a.href);
+}
+
+/* ================= VAZIFALAR ================= */
+const ri=(a,b)=>Math.floor(Math.random()*(b-a+1))+a;
+const rf=(a,b,dec=2)=>{ const v=a+Math.random()*(b-a); return +v.toFixed(dec); };
+const fmt=n=>Math.round(n*100)/100;
+
+const TASK_DEFS=[
+ {key:'inc', title:"Kasallanish (o'rtacha aholi bo'yicha)",
+  gen(){ const p1=ri(40,90)*100, p2=p1+ri(-8,12)*100, cases=ri(30,260);
+    const avg=(p1+p2)/2, r=cases/avg*100000;
+    return {text:`Yil boshida aholi ${p1}, yil oxirida ${p2} kishi. Yil davomida ${cases} yangi holat qayd etildi. 100 000 aholiga kasallanishni hisoblang (o'rtacha yillik aholi bo'yicha).`,
+      answer:fmt(r), solve:`O'rtacha aholi = (${p1}+${p2})/2 = ${avg}; ${cases}/${avg}·100 000 = <b>${fmt(r)}</b>.`, hint:`Avval o'rtacha aholini toping, so'ng 100 000 ga ko'paytiring.`}; }},
+ {key:'prev', title:'Tarqalganlik: P = I · D',
+  gen(){ const I=ri(4,40), D=ri(2,12), P=I*D/1000*100;
+    return {text:`Surunkali kasallikning kasallanishi yiliga ${I} / 1000 aholi, o'rtacha davomiyligi ${D} yil (barqaror holat). Tarqalganlikni (%) hisoblang.`,
+      answer:fmt(P), solve:`P = I·D = ${I}/1000·${D} = ${fmt(I*D/1000)} → <b>${fmt(P)}%</b>.`, hint:`Barqaror aholida tarqalganlik = kasallanish × o'rtacha davomiylik.`}; }},
+ {key:'rr', title:'Atributiv ulush (AF%)',
+  gen(){ const a=ri(30,90), b=ri(100,300), c=ri(8,25), d=ri(250,600);
+    const re=a/(a+b), ru=c/(c+d), rr=re/ru, af=(rr-1)/rr*100;
+    return {text:`Ta'sirlanganlar: ${a+b} kishidan ${a} kasallandi; ta'sirlanmaganlar: ${c+d} kishidan ${c} kasallandi. Ta'sirlanganlar orasidagi atributiv ulushni (AF%) hisoblang.`,
+      answer:fmt(af), solve:`RR = (${a}/${a+b}) / (${c}/${c+d}) = ${fmt(rr)}; AF% = (RR−1)/RR·100 = <b>${fmt(af)}%</b>.`, hint:`Avval RR, so'ng AF% = (RR−1)/RR·100.`}; }},
+ {key:'or', title:'OR (ulushlardan)',
+  gen(){ const nc=ri(60,150), nk=ri(100,250), pc=ri(40,75), pk=ri(15,45);
+    const a=Math.round(nc*pc/100), c=nc-a, b=Math.round(nk*pk/100), d=nk-b, v=(a*d)/(b*c);
+    return {text:`Holat–nazorat: ${nc} bemor (ta'sirlangan ${a}) va ${nk} nazorat (ta'sirlangan ${b}). OR ni hisoblang.`,
+      answer:fmt(v), solve:`Bemorlar: ${a} / ${c}; nazorat: ${b} / ${d}. OR = (${a}·${d})/(${b}·${c}) = <b>${fmt(v)}</b>.`, hint:`Avval jadvalni to'ldiring: a, b, c, d. OR = (a·d)/(b·c).`}; }},
+ {key:'sens', title:'Musbat prognostik qiymat (PPV)',
+  gen(){ const N=ri(5,20)*1000, pr=ri(1,10), se=ri(80,98), sp=ri(80,98);
+    const sick=N*pr/100, tp=sick*se/100, fp=(N-sick)*(100-sp)/100, ppv=tp/(tp+fp)*100;
+    return {text:`${N} kishi tekshirildi, kasallik tarqalganligi ${pr}%. Testning sezgirligi ${se}%, spesifikligi ${sp}%. Musbat natijaning PPV (%) ini hisoblang.`,
+      answer:fmt(ppv), solve:`Kasal ${sick}, TP = ${fmt(tp)}; FP = ${fmt(fp)}; PPV = TP/(TP+FP) = <b>${fmt(ppv)}%</b>.`, hint:`TP = kasallar·sezgirlik; FP = sog'lar·(1−spesifiklik); PPV = TP/(TP+FP).`}; }},
+ {key:'spec', title:'Manfiy prognostik qiymat (NPV)',
+  gen(){ const N=ri(5,20)*1000, pr=ri(5,25), se=ri(75,95), sp=ri(80,98);
+    const sick=N*pr/100, fn=sick*(100-se)/100, tn=(N-sick)*sp/100, npv=tn/(tn+fn)*100;
+    return {text:`${N} kishi, tarqalganlik ${pr}%, sezgirlik ${se}%, spesifiklik ${sp}%. Manfiy natijaning NPV (%) ini hisoblang.`,
+      answer:fmt(npv), solve:`FN = ${fmt(fn)}; TN = ${fmt(tn)}; NPV = TN/(TN+FN) = <b>${fmt(npv)}%</b>.`, hint:`TN = sog'lar·spesifiklik; FN = kasallar·(1−sezgirlik).`}; }},
+ {key:'cfr', title:'CFR (tasdiqlanganlar orasida)',
+  gen(){ const sus=ri(150,600), share=ri(40,80), conf=Math.round(sus*share/100), dead=ri(2,Math.max(3,Math.floor(conf*0.12)));
+    const v=dead/conf*100;
+    return {text:`Gumon qilingan ${sus} holatdan ${share}% laboratoriya tasdiqlandi. Tasdiqlanganlardan ${dead} kishi vafot etdi. CFR ni (%) hisoblang.`,
+      answer:fmt(v), solve:`Tasdiqlangan = ${conf}; CFR = ${dead}/${conf}·100 = <b>${fmt(v)}%</b>.`, hint:`Maxraj — tasdiqlangan holatlar, gumon qilinganlar emas.`}; }},
+ {key:'cagr', title:'CAGR va prognoz',
+  gen(){ const start=ri(100,500), years=ri(3,6), g=rf(0.03,0.2), end=Math.round(start*Math.pow(1+g,years));
+    const cg=Math.pow(end/start,1/years)-1, f=end*Math.pow(1+cg,2);
+    return {text:`${years} yilda holatlar ${start} dan ${end} gacha o'sdi. Shu CAGR saqlansa, yana 2 yildan keyingi prognoz qancha (butun songa)?`,
+      answer:Math.round(f), solve:`CAGR = (${end}/${start})^(1/${years}) − 1 = ${fmt(cg*100)}%; prognoz = ${end}·(1+CAGR)² = <b>${Math.round(f)}</b>.`, hint:`Avval CAGR ni toping, so'ng oxirgi qiymatni (1+CAGR)² ga ko'paytiring.`}; }},
+ {key:'cov', title:'Vaksina samaradorlik indeksi (K)',
+  gen(){ const nv=ri(300,900), nu=ri(300,900), a=ri(3,25), b=ri(40,160);
+    const Ia=a/nv, Ib=b/nu, K=Ib/Ia;
+    return {text:`Emlanganlar: ${nv} kishidan ${a} kasallandi; emlanmaganlar: ${nu} kishidan ${b} kasallandi. Samaradorlik indeksi K = (emlanmaganlarda kasallanish) / (emlanganlarda kasallanish) ni hisoblang.`,
+      answer:fmt(K), solve:`${b}/${nu} = ${fmt(Ib*100)}%; ${a}/${nv} = ${fmt(Ia*100)}%; K = <b>${fmt(K)}</b>. Himoya samaradorligi = (1−1/K)·100 = ${fmt((1-1/K)*100)}%.`, hint:`Formula: K = b/a (b — emlanmaganlarda, a — emlanganlarda).`}; }},
+ {key:'attack', title:'Ikkilamchi kasallanish (SAR)',
+  gen(){ const n=ri(80,260), imm=ri(10,Math.floor(n*0.4)), sec=ri(5,Math.max(6,Math.floor((n-imm)*0.5)));
+    const v=sec/(n-imm)*100;
+    return {text:`Birlamchi bemor bilan ${n} kontakt bo'lgan, ularning ${imm} nafari immun. Qolganlar orasida ${sec} ikkilamchi holat. Ikkilamchi kasallanish darajasini (%) hisoblang.`,
+      answer:fmt(v), solve:`Moyil kontaktlar = ${n}−${imm} = ${n-imm}; ${sec}/${n-imm}·100 = <b>${fmt(v)}%</b>.`, hint:`Maxrajdan immunlarni chiqarib tashlang.`}; }},
+];
+let taskState={};
+
+function renderTasks(){
+  const area=document.getElementById('taskArea'), bar=document.getElementById('scorebar');
+  area.innerHTML=''; bar.innerHTML=''; let score=0;
+  TASK_DEFS.forEach(def=>{
+    if(!taskState[def.key]) taskState[def.key]={data:def.gen(), attempts:0, solved:false, revealed:false};
+    const st=taskState[def.key];
+    const solvedFirst = st.attempts===1 && st.solved;
+    const card=document.createElement('div'); card.className='card';
+    const tagText = solvedFirst?'✔ 1-urinishdan':(st.solved?'bajarildi':(st.revealed?'yechim ko\'rsatilgan':'bajarilmadi'));
+    card.innerHTML=`
+      <h3>${def.title} <span class="tag ${solvedFirst?'done':''}">${tagText}</span></h3>
+      <p>${st.data.text}</p>
+      <div class="row" style="margin-top:10px;">
+        <input type="number" step="any" id="in-${def.key}" placeholder="Javobingiz" ${st.solved?'disabled':''}>
+        <button class="btn good" onclick="checkTask('${def.key}')" ${st.solved?'disabled':''}>Tekshirish</button>
+        <button class="btn ghost" onclick="showHint('${def.key}')">AI maslahati</button>
+        <button class="btn ghost" onclick="showSolution('${def.key}')">Yechim</button>
+      </div>
+      <div id="fb-${def.key}" style="margin-top:8px;"></div>
+      <div class="hint" id="hint-${def.key}">🤖 ${st.data.hint}</div>
+      <div class="sol" id="sol-${def.key}">${st.data.solve}</div>`;
+    area.appendChild(card);
+    if(solvedFirst) score++;
+    const sp=document.createElement('span'); sp.textContent=def.title;
+    if(solvedFirst) sp.classList.add('got');
+    bar.appendChild(sp);
+  });
+  const total=document.createElement('span'); total.textContent=`Ball: ${score} / ${TASK_DEFS.length}`;
+  if(score===TASK_DEFS.length) total.classList.add('got');
+  bar.appendChild(total);
+}
+function checkTask(key){
+  const st=taskState[key]; const inp=document.getElementById('in-'+key);
+  const val=parseFloat(inp.value); const fb=document.getElementById('fb-'+key);
+  if(isNaN(val)){ fb.innerHTML='<span class="no">Son kiriting.</span>'; return; }
+  const ok=Math.abs(val-st.data.answer)<=Math.max(0.05, Math.abs(st.data.answer)*0.02);
+  st.attempts++;
+  GLOBAL.tasks[key]={attempts:st.attempts, solved:ok, solvedFirst:ok&&st.attempts===1, revealed:false};
+  saveState(GLOBAL);
+  if(ok){ st.solved=true; renderTasks(); }
+  else fb.innerHTML=`<span class="no">✘ Xato. To'g'ri javob: ${st.data.answer}.</span>`;
+}
+function showHint(key){ const el=document.getElementById('hint-'+key); el.style.display=el.style.display==='block'?'none':'block'; }
+function showSolution(key){
+  const st=taskState[key];
+  document.getElementById('sol-'+key).style.display='block';
+  if(!st.solved && !st.revealed){
+    st.revealed=true;
+    GLOBAL.tasks[key]={attempts:Math.max(st.attempts,1), solved:false, solvedFirst:false, revealed:true};
+    saveState(GLOBAL); renderTasks();
+    document.getElementById('sol-'+key).style.display='block';
+  }
+}
+
+/* ================= O'CHOQLAR ================= */
+const OB_SCENARIOS = {
+  food: {id:'food', icon:'🍽', title:'Oziq-ovqat o\'chog\'i', subtitle:'"Lastochka" kafesi',
+    diagnosis:'Klinika: diareya 92%, isitma 81%. Ehtimol salmonellyoz.',
+    curve:'11-may — 0; 12-may — 1; 13-may — 9; 14-may — 11; 15-may — 4; 16-may — 1. Jami 26.',
+    cases:'26 / 48 mehmon kasallandi (54%). Xodimlar sog\'lom.',
+    menu:'"Olivye"; tovuq sho\'rva; qovurilgan tovuq; pirojnoyi; choy/qahva; suv.',
+    lab:'9/11 bemorda S. Enteritidis serotip 4; qovurilgan tovuqda ham S. Enteritidis.',
+    control:'Izolyatsiya, dezinfeksiya, tovuq partiyasini yo\'q qilish.',
+    final:'Manba — qovurilgan tovuq. RR = 3,93.',
+    questions:[
+      {q:'O\'choqdagi kasallanish darajasi necha foiz?', opts:['54%','78,6%','20%','100%'], a:0, why:'26/48·100 ≈ 54%.'},
+      {q:'Qaysi mahsulot eng yuqori RR beradi?', opts:['Tovuq (3,93)','Suv (1,41)','Pirojnoyi (0,74)','Salat (1,17)'], a:0, why:'Tovuq bo\'yicha RR = 3,93 — eng yuqori.'},
+      {q:'Egri chiziq shakli nimani ko\'rsatadi?', opts:['Nuqtaviy (umumiy manba)','Zanjirli','Davomiy','Vektor'], a:0, why:'Birmodali — nuqtaviy o\'choq.'},
+      {q:'Salmonellyoz inkubatsiyasi qancha?', opts:['12–36 soat','7–14 kun','2–6 soat','1 oy'], a:0, why:'12–36 soat (ba\'zan 2–6 soat).'},
+      {q:'Birinchi navbatda qanday chora?', opts:['Tovuq partiyasini olib qo\'yish','Faqat davolash','Faqat dezinfeksiya','Xodimlarni bo\'shatish'], a:0, why:'Manbani yo\'q qilish — asosiy.'},
+      {q:'Suv manba bo\'lsa, RR qanday bo\'lardi?', opts:['RR ≈ 1 (ishonchsiz)','RR > 3','RR = 0','RR < 0'], a:0, why:'Suv bo\'yicha RR = 1,41 — ishonchsiz.'},
+      {q:'Oziq-ovqat o\'chog\'ining belgisi?', opts:['To\'satdan portlash, qisqa inkubatsiya','Sekin tarqalish','Faqat bolalarda','Faqat qishda'], a:0, why:'Portlash + qisqa inkubatsiya.'},
+      {q:'Profilaktika uchun nima muhim?', opts:['Tovuqni 74°C gacha pishirish','Faqat qo\'l yuvish','Faqat xlorlash','Faqat emlash'], a:0, why:'To\'liq termik ishlov — asosiy.'},
+      {q:'54% nimani bildiradi?', opts:['Har 100 mehmondan 54 nafari kasallangan','Aholining 54%','Faqat tovuq yeganlarning 54%','26 kishi'], a:0, why:'Xavf ostidagilar orasidagi ulush.'},
+      {q:'Laboratoriya tasdig\'i qanday?', opts:['Bemor va tovuqda bir xil serotip','Faqat bemorda','Faqat tovuqda','Suvda'], a:0, why:'Bir xil serotip — manba tovuq.'}
+    ]},
+  air: {id:'air', icon:'💨', title:'Havo-tomchi o\'chog\'i', subtitle:'Yotoqxona — gripp',
+    diagnosis:'28/120 kishida isitma, quruq yo\'tal. Gripp A(H3N2).',
+    curve:'1-kun 2, 2-kun 7, 3-kun 19.',
+    cases:'Yosh 18–22. Kasallar bitta blokda.',
+    menu:'Umumiy oshxona.',
+    lab:'PCR: 12/15 bemorda A(H3N2).',
+    control:'Izolyatsiya, ventilyatsiya, maska.',
+    final:'Asosiy chora — izolyatsiya + ventilyatsiya.',
+    questions:[
+      {q:'Birinchi navbatda nima qilish kerak?', opts:['Izolyatsiya + kontaktlar','Emlash','Dezinfeksiya','Oshxona tekshiruvi'], a:0, why:'Manba — bemor.'},
+      {q:'Yuqish yo\'li?', opts:['Havo-tomchi','Suv','Parenteral','Aloqa'], a:0, why:'Yo\'tal, aksirish.'},
+      {q:'Karantin hajmini nima aniqlaydi?', opts:['Laboratoriya + kontaktlar','Faqat alomatlar','Faqat shifokor','O\'quv rejasi'], a:0, why:'Lab + kontaktlar.'},
+      {q:'Gripp inkubatsiyasi?', opts:['1–4 kun','7–14 kun','12–36 soat','2–6 soat'], a:0, why:'1–4 kun.'},
+      {q:'Yuqishni kamaytirish uchun?', opts:['Ventilyatsiya + maska','Suvni xlorlash','Ovqatni tekshirish','Kemiruvchilarga qarshi'], a:0, why:'Havo-tomchi.'},
+      {q:'Emlash qachon?', opts:['Epidemiyadan oldin (sentabr-oktabr)','Epidemiya paytida','Faqat kasallarda','Faqat bolalarda'], a:0, why:'1 oy oldin.'},
+      {q:'Karantin davomiyligi?', opts:['Inkubatsiya davri (7 kun)','1 kun','30 kun','6 oy'], a:0, why:'Maksimal inkubatsiya.'},
+      {q:'Qaysi holat zanjirli o\'choq?', opts:['Ko\'p cho\'qqili egri chiziq + kontakt','Bitta holat','Oziq-ovqat bilan','Faqat qishda'], a:0, why:'Ko\'p cho\'qqi + kontakt.'},
+      {q:'Keyingi profilaktika?', opts:['Emlash','Izolyatsiya','Dezinfeksiya','Ventilyatsiya'], a:0, why:'Emlash — keyingi.'},
+      {q:'Izolyatsiya qachon tugaydi?', opts:['Kamida 7 kun','Darhol','3 kun','Izolyatsiya kerak emas'], a:0, why:'Kamida 7 kun.'}
+    ]},
+  par: {id:'par', icon:'💉', title:'Parenteral o\'chog\'i', subtitle:'Stomatologiya — gepatit B',
+    diagnosis:'5 bemorda HBsAg. Asboblar jurnali to\'liq emas.',
+    curve:'Mart — 1, aprel — 2, may — 2.',
+    cases:'Bemorlar bir xil kabinetda davolangan.',
+    menu:'Oziq-ovqat bilan bog\'liq emas.',
+    lab:'HBsAg 5/5. Xodimlardan 1 nafarida HBsAg.',
+    control:'Sterilizatsiya, xodimlarni tekshirish, PEP.',
+    final:'Manba — asboblar va xodim. Sterilizatsiya + PEP.',
+    questions:[
+      {q:'Yuqish yo\'li?', opts:['Parenteral (asbob)','Suv','Havo-tomchi','Ovqat'], a:0, why:'Stomatologik asboblar.'},
+      {q:'Birinchi tekshiriladigan narsa?', opts:['Asboblar sterilizatsiyasi va xodimlar','Oshxona','Ventilyatsiya','Suv'], a:0, why:'Asboblar — shubha.'},
+      {q:'Kontaktlarga nima kerak?', opts:['PEP (vaksina + immunoglobulin) 24–48 soat','Faqat kuzatuv','Karantin 30 kun','Antibiotik'], a:0, why:'PEP tez.'},
+      {q:'Gepatit B inkubatsiyasi?', opts:['45–180 kun','1–3 kun','7–14 kun','1 yil'], a:0, why:'45–180 kun.'},
+      {q:'O\'choq turi?', opts:['Davomiy manba (asboblar)','Nuqtaviy','Zanjirli','Sapronoz'], a:0, why:'2 oy davomida.'},
+      {q:'Sterilizatsiya qanday tekshiriladi?', opts:['Avtoklav nazorati (fizik, kimyoviy, biologik)','Faqat vizual','Faqat hujjat','Faqat so\'rov'], a:0, why:'3 xil nazorat.'},
+      {q:'Xodimda HBsAg topilsa?', opts:['Kontakt sifatida tekshirish va PEP','Ishdan bo\'shatish','Hech narsa','Faqat kuzatuv'], a:0, why:'Potensial manba.'},
+      {q:'Asosiy profilaktika?', opts:['Xodimlarni emlash + avtoklav nazorati','Faqat dezinfeksiya','Suvni xlorlash','Ventilyatsiya'], a:0, why:'Emlash + nazorat.'},
+      {q:'Birinchi qadam?', opts:['Holatlarni ro\'yxatga olish va tasdiqlash','Oshxona menyusi','Suv tarkibi','Ventilyatsiya'], a:0, why:'Retrospektiv tahlil.'},
+      {q:'Gepatit B yuqish yo\'li?', opts:['Qon, in\'ektsiya (parenteral)','Oziq-ovqat','Havo-tomchi','Suv'], a:0, why:'Parenteral.'}
+    ]},
+  sapronoz: {id:'sapronoz', icon:'🌾', title:'Sapronoz: Legionellyoz', subtitle:'Mehmonxona',
+    diagnosis:'10 kishida pnevmoniya. Legionella topildi.',
+    curve:'1-hafta — 2, 2-hafta — 8.',
+    cases:'10 kishi, bitta qanotda.',
+    lab:'Suv namunalarida L. pneumophila.',
+    control:'Suv tizimlarini dezinfeksiya.',
+    final:'Manba — suv aerozollari.',
+    questions:[
+      {q:'Yuqish yo\'li?', opts:['Suv aerozoli (aspiratsion)','Oziq-ovqat','Parenteral','Kontakt'], a:0, why:'Suv aerozoli.'},
+      {q:'Eng samarali chora?', opts:['Suv tizimlarini dezinfeksiya','Izolyatsiya','Emlash','Deratizatsiya'], a:0, why:'Manba suvda.'},
+      {q:'Qaysi guruh?', opts:['Sapronoz','Antroponoz','Zoonoz','O\'ta xavfli'], a:0, why:'Atrof-muhit.'},
+      {q:'Inkubatsiya?', opts:['2–10 kun','12–36 soat','1 oy','1 yil'], a:0, why:'2–10 kun.'},
+      {q:'Klinik shakl?', opts:['Pnevmoniya','Diareya','Toshma','Sariqlik'], a:0, why:'Og\'ir pnevmoniya.'},
+      {q:'Qayerda ko\'payadi?', opts:['Suv tizimlarida','Quruq tuproqda','Havoda','Ovqatda'], a:0, why:'Suvda.'},
+      {q:'Profilaktika?', opts:['Suv tizimlarini tozalash','Emlash','Izolyatsiya','Deratizatsiya'], a:0, why:'Tozalash.'},
+      {q:'Ekologik guruh?', opts:['Sapronoz (suv)','Antroponoz','Zoonoz','O\'ta xavfli'], a:0, why:'Suv bilan.'},
+      {q:'Laboratoriya?', opts:['Suvda Legionella qidirish','Qon','Siydik','Najas'], a:0, why:'Suvdan.'},
+      {q:'Epidemiologik belgisi?', opts:['Suv manbasi, bir binoda to\'plangan','Oziq-ovqat','Kontakt','Vektor'], a:0, why:'Suv + bino.'}
+    ]},
+  ooi_cholera: {id:'ooi_cholera', icon:'☣️', title:'O\'ta xavfli: Vabo', subtitle:'Chegara punkti',
+    diagnosis:'2 kishida suvli diareya. V. cholerae O1.',
+    curve:'2 holat bir kunda.',
+    cases:'2 kishi, bir hududdan.',
+    lab:'Tez test: V. cholerae O1.',
+    control:'Izolyatsiya, favqulodda xabar, karantin.',
+    final:'Izolyatsiya + favqulodda xabar + karantin.',
+    questions:[
+      {q:'Birinchi qadam?', opts:['Izolyatsiya + favqulodda xabar','Lab kutish','Faqat dezinfeksiya','Uyga qaytarish'], a:0, why:'Birinchi qadam.'},
+      {q:'Keyingi chora?', opts:['Kontaktlar + karantin','Faqat emlash','Menyu','Hech narsa'], a:0, why:'Karantin.'},
+      {q:'Vabo guruhi?', opts:['O\'ta xavfli','Sapronoz','Antroponoz','Zoonoz'], a:0, why:'O\'ta xavfli.'},
+      {q:'Inkubatsiya?', opts:['Soatdan 5 kungacha','2–6 soat','7–14 kun','1 oy'], a:0, why:'Soatdan 5 kun.'},
+      {q:'Yuqish yo\'li?', opts:['Suv (asosiy)','Havo-tomchi','Parenteral','Vektor'], a:0, why:'Suv.'},
+      {q:'Dezinfeksiya?', opts:['Xlorli preparatlar','UV','Qaynatish','Faqat sovun'], a:0, why:'Xlor.'},
+      {q:'Emlash?', opts:['Yordamchi chora','Asosiy','Kerak emas','Faqat bolalarga'], a:0, why:'Yordamchi.'},
+      {q:'Izolyatsiya qachon tugaydi?', opts:['3 marta salbiy tekshiruv','Darhol','1 hafta','Kerak emas'], a:0, why:'3 marta.'},
+      {q:'Kim rahbarlik qiladi?', opts:['Sanitariya-epidemiologiya xizmati + komissiya','Faqat shifokor','Politsiya','Hokimiyat'], a:0, why:'Komissiya.'},
+      {q:'Karantin nima uchun?', opts:['Tarqalishni to\'xtatish','Davolash','Hujjat','Hech narsa'], a:0, why:'Tarqalishni.'}
+    ]},
+  ooi_plague: {id:'ooi_plague', icon:'☣️', title:'O\'ta xavfli: O\'lat', subtitle:'Tabiiy o\'choq',
+    diagnosis:'3 kishida bubon, isitma. Y. pestis.',
+    curve:'3 holat bir haftada.',
+    cases:'3 kishi, kemiruvchilar ko\'p hududda.',
+    lab:'Bubon punktatida Y. pestis.',
+    control:'Izolyatsiya, xabar, karantin, deratizatsiya.',
+    final:'Izolyatsiya + xabar + karantin + deratizatsiya.',
+    questions:[
+      {q:'Yuqish yo\'li?', opts:['Transmissiv (burga)','Suv','Havo-tomchi','Oziq-ovqat'], a:0, why:'Burga chaqishi.'},
+      {q:'Inkubatsiya?', opts:['Soatdan 6 kungacha','2–6 soat','7–14 kun','1 oy'], a:0, why:'Soatdan 6 kun.'},
+      {q:'Birinchi chora?', opts:['Izolyatsiya + favqulodda xabar','Deratizatsiya','Emlash','Hech narsa'], a:0, why:'Birinchi.'},
+      {q:'Asosiy manba?', opts:['Kemiruvchilar','Odam','Qushlar','Hasharotlar'], a:0, why:'Kemiruvchilar.'},
+      {q:'Deratizatsiya nima uchun?', opts:['Kemiruvchilarni yo\'q qilish','Hasharotlarni','Mikroblarni','Suvni'], a:0, why:'Kemiruvchilar.'},
+      {q:'Dezinfeksiya?', opts:['Xlorli preparatlar','UV','Qaynatish','Sovun'], a:0, why:'Xlor.'},
+      {q:'Izolyatsiya qachon?', opts:['3 marta salbiy','Darhol','1 hafta','Kerak emas'], a:0, why:'3 marta.'},
+      {q:'Emlash?', opts:['Yordamchi','Asosiy','Kerak emas','Faqat bolalarga'], a:0, why:'Yordamchi.'},
+      {q:'Kim rahbarlik?', opts:['Sanitariya-epidemiologiya xizmati + komissiya','Shifokor','Politsiya','Hokimiyat'], a:0, why:'Komissiya.'},
+      {q:'Karantin nima uchun?', opts:['Tarqalishni to\'xtatish','Davolash','Hujjat','Hech narsa'], a:0, why:'Tarqalishni.'}
+    ]},
+  ooi_anthrax: {id:'ooi_anthrax', icon:'☣️', title:'O\'ta xavfli: Kuydirgi', subtitle:'Chorvachilik',
+    diagnosis:'5 ishchida karbunkul. B. anthracis.',
+    curve:'5 holat bir haftada.',
+    cases:'5 ishchi, kasal hayvonlar bilan.',
+    lab:'Teri o\'choqlarida B. anthracis.',
+    control:'Izolyatsiya, xabar, karantin, hayvonlarni emlash.',
+    final:'Izolyatsiya + xabar + karantin.',
+    questions:[
+      {q:'Yuqish yo\'li?', opts:['Kontakt (teri), aspiratsion, alimentar','Suv','Transmissiv','Parenteral'], a:0, why:'Kontakt.'},
+      {q:'Inkubatsiya?', opts:['Soatdan 8 kungacha','2–6 soat','7–14 kun','1 oy'], a:0, why:'Soatdan 8 kun.'},
+      {q:'Birinchi chora?', opts:['Izolyatsiya + xabar','Faqat dezinfeksiya','Emlash','Hech narsa'], a:0, why:'Birinchi.'},
+      {q:'Asosiy manba?', opts:['Kasal hayvonlar','Odam','Qushlar','Hasharotlar'], a:0, why:'Hayvonlar.'},
+      {q:'Dezinfeksiya?', opts:['Xlorli preparatlar','UV','Qaynatish','Sovun'], a:0, why:'Xlor.'},
+      {q:'Izolyatsiya qachon?', opts:['Teri o\'choqlari bitgach + tekshiruv','Darhol','1 hafta','Kerak emas'], a:0, why:'Bitgach.'},
+      {q:'Emlash?', opts:['Yordamchi','Asosiy','Kerak emas','Faqat bolalarga'], a:0, why:'Yordamchi.'},
+      {q:'Kim rahbarlik?', opts:['Sanitariya-epidemiologiya xizmati + komissiya','Shifokor','Politsiya','Hokimiyat'], a:0, why:'Komissiya.'},
+      {q:'Karantin nima uchun?', opts:['Tarqalishni to\'xtatish','Davolash','Hujjat','Hech narsa'], a:0, why:'Tarqalishni.'},
+      {q:'Hayvonlarga nima?', opts:['Emlanadi va tekshiriladi','Hech narsa','Sotiladi','Ko\'chiriladi'], a:0, why:'Emlash.'}
+    ]},
+  ooi_tularemia: {id:'ooi_tularemia', icon:'☣️', title:'O\'ta xavfli: Tulyaremiya', subtitle:'Tabiiy o\'choq',
+    diagnosis:'4 kishida isitma, limfa shishishi. F. tularensis.',
+    curve:'4 holat bir haftada.',
+    cases:'4 kishi, kemiruvchilar hududida.',
+    lab:'Qonda F. tularensis antitanalari.',
+    control:'Izolyatsiya, xabar, karantin, deratizatsiya.',
+    final:'Izolyatsiya + xabar + karantin + deratizatsiya.',
+    questions:[
+      {q:'Yuqish yo\'li?', opts:['Transmissiv (chivin, kana), kontakt, aspiratsion','Suv','Parenteral','Havo-tomchi'], a:0, why:'Transmissiv.'},
+      {q:'Inkubatsiya?', opts:['Soatdan 3 haftagacha','2–6 soat','7–14 kun','1 oy'], a:0, why:'Soatdan 3 hafta.'},
+      {q:'Birinchi chora?', opts:['Izolyatsiya + xabar','Deratizatsiya','Emlash','Hech narsa'], a:0, why:'Birinchi.'},
+      {q:'Asosiy manba?', opts:['Kemiruvchilar','Odam','Qushlar','Hasharotlar'], a:0, why:'Kemiruvchilar.'},
+      {q:'Deratizatsiya?', opts:['Kemiruvchilarni yo\'q qilish','Hasharotlarni','Mikroblarni','Suvni'], a:0, why:'Kemiruvchilar.'},
+      {q:'Dezinfeksiya?', opts:['Xlorli preparatlar','UV','Qaynatish','Sovun'], a:0, why:'Xlor.'},
+      {q:'Izolyatsiya qachon?', opts:['Klinik tuzalish + tekshiruv','Darhol','1 hafta','Kerak emas'], a:0, why:'Tuzalish.'},
+      {q:'Emlash?', opts:['Yordamchi','Asosiy','Kerak emas','Faqat bolalarga'], a:0, why:'Yordamchi.'},
+      {q:'Kim rahbarlik?', opts:['Sanitariya-epidemiologiya xizmati + komissiya','Shifokor','Politsiya','Hokimiyat'], a:0, why:'Komissiya.'},
+      {q:'Karantin nima uchun?', opts:['Tarqalishni to\'xtatish','Davolash','Hujjat','Hech narsa'], a:0, why:'Tarqalishni.'}
+    ]},
+  military: {id:'military', icon:'🎖️', title:'Harbiy epidemiologiya', subtitle:'Qo\'shinlarda infeksiya',
+    diagnosis:'40 askarda isitma, toshma. Tif shubhasi.',
+    curve:'3 kunda 40 holat.',
+    cases:'40 askar, bir kazarma.',
+    lab:'Lab tekshiruvi talab.',
+    control:'Izolyatsiya, karantin, dezinfeksiya, emlash.',
+    final:'Izolyatsiya + karantin + emlash.',
+    questions:[
+      {q:'Birinchi chora?', opts:['Izolyatsiya + karantin','Dezinfeksiya','Oshxona','Hech narsa'], a:0, why:'Birinchi.'},
+      {q:'Qaysi infeksiya tez tarqaladi?', opts:['Tif','Gripp','Vabo','Sil'], a:0, why:'Tif.'},
+      {q:'Profilaktika?', opts:['Emlash + sanitariya nazorati','Faqat dezinfeksiya','Faqat izolyatsiya','Faqat karantin'], a:0, why:'Emlash.'},
+      {q:'Asosiy e\'tibor?', opts:['Profilaktika + tez izolyatsiya','Davolash','Statistika','Hujjat'], a:0, why:'Profilaktika.'},
+      {q:'Tif yuqish yo\'li?', opts:['Suv va oziq-ovqat (fekal-oral)','Havo-tomchi','Parenteral','Transmissiv'], a:0, why:'Fekal-oral.'},
+      {q:'Dezinfeksiya?', opts:['Xlorli preparatlar','UV','Qaynatish','Sovun'], a:0, why:'Xlor.'},
+      {q:'Izolyatsiya qachon?', opts:['Bakteriologik tekshiruvdan keyin','Darhol','1 hafta','Kerak emas'], a:0, why:'Tekshiruv.'},
+      {q:'Emlash?', opts:['Yordamchi','Asosiy','Kerak emas','Faqat bolalarga'], a:0, why:'Yordamchi.'},
+      {q:'Kim rahbarlik?', opts:['Sanitariya xizmati + qo\'mondonlik','Shifokor','Politsiya','Hokimiyat'], a:0, why:'Qo\'mondonlik.'},
+      {q:'Karantin nima uchun?', opts:['Tarqalishni to\'xtatish','Davolash','Hujjat','Hech narsa'], a:0, why:'Tarqalishni.'}
+    ]},
+  disinfection: {id:'disinfection', icon:'🧪', title:'Dezinfeksiya choralari', subtitle:'O\'choqda chora-tadbirlar',
+    diagnosis:'Kompleks dezinfeksiya choralari.',
+    curve:'Choralar o\'choqqa qarab.',
+    cases:'O\'choq turi va manba aniqlanishi kerak.',
+    lab:'Laboratoriya natijalari chora tanlashga yordam beradi.',
+    control:'Dezinfeksiya, dezinseksiya, deratizatsiya, sterilizatsiya.',
+    final:'Har chora o\'z joyida.',
+    questions:[
+      {q:'Mikroblarni yo\'q qilish?', opts:['Dezinfeksiya','Dezinseksiya','Deratizatsiya','Sterilizatsiya'], a:0, why:'Dezinfeksiya.'},
+      {q:'Hasharotlarni yo\'q qilish?', opts:['Dezinseksiya','Dezinfeksiya','Deratizatsiya','Sterilizatsiya'], a:0, why:'Dezinseksiya.'},
+      {q:'Kemiruvchilarni yo\'q qilish?', opts:['Deratizatsiya','Dezinfeksiya','Dezinseksiya','Sterilizatsiya'], a:0, why:'Deratizatsiya.'},
+      {q:'Barcha mikroorganizmlarni yo\'q qilish?', opts:['Sterilizatsiya','Dezinfeksiya','Dezinseksiya','Deratizatsiya'], a:0, why:'Sterilizatsiya.'},
+      {q:'Dezinfeksiya usullari?', opts:['Kimyoviy, fizikaviy, biologik','Faqat kimyoviy','Faqat fizikaviy','Faqat biologik'], a:0, why:'3 xil.'},
+      {q:'Dezinseksiya preparatlari?', opts:['Insektitsidlar','Rodentitsidlar','Bakteritsidlar','Virutsidlar'], a:0, why:'Insektitsidlar.'},
+      {q:'Deratizatsiya preparatlari?', opts:['Rodentitsidlar','Insektitsidlar','Bakteritsidlar','Virutsidlar'], a:0, why:'Rodentitsidlar.'},
+      {q:'Sterilizatsiya usullari?', opts:['Avtoklav, quruq issiqlik, kimyoviy','Faqat kimyoviy','Faqat UV','Faqat biologik'], a:0, why:'3 xil.'},
+      {q:'Dezinfeksiya qachon?', opts:['O\'choqda va profilaktika','Faqat epidemiya','Faqat qish','Faqat bolalarda'], a:0, why:'O\'choq + profilaktika.'},
+      {q:'Dezinseksiya qachon?', opts:['Hasharotlar ko\'payganda + o\'choqda','Faqat epidemiya','Faqat qish','Faqat bolalarda'], a:0, why:'Hasharotlar + o\'choq.'}
+    ]}
+};
+
+/* ===== QIYINLASHTIRILGAN SAVOLLAR ===== */
+const Q=(q,ok,a,b,c,why)=>({q,opts:[ok,a,b,c],a:0,why});
+const OB_HARD={
+ food:[
+  Q("Tovuq yeganlarda 30 kishidan 24 nafari, yemaganlarda 18 kishidan 2 nafari kasallandi. RR qancha?","7,2","32,0","3,6","0,14","RR = (24/30)/(2/18) = 7,2. 32,0 — bu OR, ya'ni boshqa ko'rsatkich."),
+  Q("Ovqatlanishdan so'ng bir cho'qqili egri chiziq paydo bo'ldi. Bu nimani anglatadi?","Umumiy manbaga bir martalik ta'sir; inkubatsiya = ta'sirdan kasallik boshlanishigacha vaqt","Odamdan odamga zanjirli yuqish; inkubatsiyani aniqlab bo'lmaydi","Doimiy manba; holatlar haftalab davom etadi","Mavsumiy o'sish; inkubatsiya baholanmaydi","Birmodali chiziq — nuqtaviy (bir martalik) ta'sir."),
+  Q("'Olivye' bo'yicha RR = 2,1 (95% CI 0,9–4,8), tovuq bo'yicha RR = 7,2 (CI 3,1–16,7). Qanday xulosa to'g'ri?","Olivye bo'yicha bog'liqlik ishonchsiz (CI 1 ni qamraydi), gumon tovuqqa","Olivye ham, tovuq ham isbotlangan manba","Olivye asosiy manba, chunki CI kengroq","RR>1 bo'lgani uchun olivye ham tasdiqlangan","Ishonch oralig'i 1 ni kesib o'tsa, bog'liqlik statistik ishonchsiz."),
+  Q("Kafedagi 48 mehmonning ro'yxati bor. Eng mos tahlil dizayni qaysi?","Retrospektiv kogort tadqiqot (kasallanish va RR hisoblanadi)","Holat–nazorat tadqiqot (faqat OR)","Kesma tadqiqot (faqat tarqalganlik)","Ekologik tadqiqot (guruh darajasida)","Butun guruh ma'lum bo'lsa, kasallanishni hisoblab RR olish mumkin."),
+  Q("Salmonellyozning asosiy rezervuari?","Qishloq xo'jalik hayvonlari va parrandalar (go'sht, tuxum)","Faqat kasal odamlar","Tuproq va suvdagi saprofitlar","Kemiruvchilar burgalari","Salmonellyoz — zoonoz."),
+  Q("Birinchi navbatda qaysi namunalar olinadi?","Bemorlar najasi/qusuq, qolgan mahsulotlar, xodimlardan najas va surtma","Bemorlar qoni va siydigi","Kafe havosi va suv namunasi","Faqat ichimlik suvi","Patogenni bemorda, mahsulotda va tashuvchida solishtirish zarur."),
+  Q("O'choqda kasallanish darajasi (26 / 48) qancha?","54,2%","45,8%","26,0%","85,2%","26/48·100 = 54,2%. 45,8% — sog'lar ulushi."),
+  Q("Qaysi chora majmuasi to'g'ri?","Gumon mahsulotni olib qo'yish, dezinfeksiya, xodimlarni tekshirish","Faqat bemorlarni davolash","Kafe atrofida karantin va emlash","Faqat suvni xlorlash","Manbani yo'qotish va tashuvchilarni aniqlash."),
+  Q("Xodimda S. Enteritidis topilsa, bu nimani anglatadi?","Tashuvchi doimiy manba bo'lishi mumkin; ishdan chetlatish va tekshirish","Faqat jabrlangan, chora kerak emas","Faqat uyda ovqatlangani tufayli","Yuqish yo'li havo-tomchi","Ovqat bilan ishlovchi tashuvchi xavfli."),
+  Q("Qaysi yuqish mexanizmi xos?","Fekal-oral (oziq-ovqat yo'li)","Aerozol","Transmissiv","Kontakt-qon","Salmonellyoz — ichak infeksiyasi."),
+ ],
+ air:[
+  Q("Yotoqxonada 120 kishidan 28 tasi kasallandi. 40 nafari emlangan edi, ulardan 4 tasi kasal. Emlanmaganlarda kasallanish?","30%","23,3%","10%","14,3%","Emlanmaganlar 80 kishi, kasal 24: 24/80 = 30%."),
+  Q("Shu ma'lumotda K = b/a (b — emlanmaganlar, a — emlanganlar) qancha?","3,0","0,33","1,5","6,0","K = 30%/10% = 3,0."),
+  Q("Himoya samaradorligi (1 − 1/K)·100 qancha?","66,7%","33,3%","70%","90%","1 − 1/3 = 0,667."),
+  Q("1-kun 2, 2-kun 7, 3-kun 19 holat. Xulosa?","Tez o'sish: kontakt orqali yuqish, shoshilinch izolyatsiya kerak","Nuqtaviy manba; qo'shimcha chora kerak emas","Pasayish bosqichi, o'choq so'ndi","Sapronoz, atrof-muhit manbasi","Eksponensial o'sish — odamdan odamga yuqish."),
+  Q("Gripp inkubatsiyasi ko'pincha qancha?","2–7 kun","12–36 soat","10–21 kun","45–60 kun","Bir necha soatdan 12 kungacha, ko'pincha 2–7 kun."),
+  Q("Qaysi chora majmuasi to'g'ri?","Kasallarni ajratish, kontaktlar kuzatuvi, shamollatish va niqob","Oshxonani yopish va suvni xlorlash","Hammaga 30 kunlik karantin","Kontaktlarga faqat antibiotik","Aerozol yo'liga qarshi: izolyatsiya, shamollatish, niqob."),
+  Q("Og'ir kechish va yuqori letallik xavf omillari?","Homiladorlik (II–III trimestr), semizlik, o'pka va yurak kasalliklari","Yosh 18–22 va sog'lom holat","Ichak infeksiyasi anamnezi","Yozda kasallanish","Og'ir kechishga olib keladigan asosiy xavf omillari."),
+  Q("Yotoqxona bo'yicha kasallanish darajasi?","23,3%","28,0%","30,0%","70,0%","28/120·100 = 23,3%."),
+  Q("Laboratoriya tasdig'i uchun eng mos namuna?","Burun-halqum surtmasi, kasallikning dastlabki kunlarida (PCR)","Najas, 2-haftada","Qon ekmasi, 3-haftada","Siydik, istalgan vaqtda","Virus dastlabki kunlarda yuqori nafas yo'llarida topiladi."),
+  Q("Emlash qachon eng samarali?","Epidemik mavsum oldidan (kuzda)","Epidemiya cho'qqisida","Faqat kasallanganlardan keyin","Mavsumdan keyin","Himoya shakllanishi uchun vaqt kerak."),
+ ],
+ par:[
+  Q("Stomatologiyada 5 holat. 1-bemor HBsAg(+). Kontaktlarga birinchi chora?","Tekshiruv va emlanmaganlarga vaksina ± immunoglobulin","30 kunlik kuzatuv, chora yo'q","Antibiotik kursi","21 kunlik karantin","Zudlik bilan faol-passiv profilaktika."),
+  Q("Inkubatsiya 45–180 kun. Retrospektiv tahlil qancha davrni qamraydi?","Oxirgi holatdan 6 oy orqaga","Oxirgi 2 hafta","Oxirgi 1 oy","Faqat oxirgi qabul","Maksimal inkubatsiya davrini qamrash kerak."),
+  Q("Xodimda HBsAg(+) topildi. To'g'ri qaror?","Manba sifatida baholash, tekshirish, ishni cheklash masalasini ko'rish","E'tiborsiz qoldirish","Darhol ishdan chiqarish va jazolash","Faqat vitamin kursi","Xodim potensial manba."),
+  Q("Avtoklav nazorati qanday amalga oshiriladi?","Fizik, kimyoviy va biologik (sporali) usullar birgalikda","Faqat vizual ko'rik","Faqat hujjatlarni tekshirish","Faqat termometr ko'rsatkichi","Sterilizatsiya sifati uch tomonlama nazoratda."),
+  Q("Sun'iy yuqish yo'li qaysi?","Teri va shilliqni shikastlovchi tibbiy muolajalar (asboblar)","Ovqat orqali","Havo-tomchi","Burga chaqishi","Parenteral yo'l."),
+  Q("Uch oy davomida bitta kabinetdagi holatlar qaysi o'choq turiga xos?","Davomiy manbali (doimiy omil) o'choq","Nuqtaviy bir martalik","Aerozol epidemiyasi","Suv o'choq","Omil uzoq vaqt amal qilgan."),
+  Q("HBsAg(+) onadan tug'ilgan chaqaloqqa nima qilinadi?","Birinchi sutka ichida vaksina + immunoglobulin","Emlash 1 oylikdan","Faqat kuzatuv","Emlash va emizishni to'xtatish","Vertikal yuqishni oldini olish."),
+  Q("Tadqiqotning eng mos boshlanishi?","Retrospektiv tahlil: bemorlar ro'yxati, asboblar jurnali, sterilizatsiya hujjatlari","Oshxona menyusini tekshirish","Suv tahlili","Ventilyatsiya o'lchamlari","Parenteral yo'l — asbob va muolajalar."),
+  Q("Qaysi anti-HBs titr himoya deb hisoblanadi?","≥10 mIU/ml","≥1 mIU/ml","≥100 mIU/ml","≥1000 mIU/ml","Umumiy qabul qilingan himoya darajasi."),
+  Q("Eng samarali profilaktika?","Xodimlar va bemorlarni emlash, sterilizatsiya nazorati","Faqat dezinfeksiya","Faqat izolyatsiya","Suvni xlorlash","Emlash va nazorat birgalikda."),
+ ],
+ sapronoz:[
+  Q("Qanotda 80 mehmon turgan, 10 nafari pnevmoniya bilan kasallandi. Qanotdagi kasallanish?","12,5%","5%","8%","10%","10/80·100 = 12,5%."),
+  Q("Legionella odamdan odamga yuqadimi?","Odatda yo'q, manba — suv aerozoli","Ha, havo-tomchi","Ha, kontakt","Ha, fekal-oral","Sapronoz, manba — atrof-muhit."),
+  Q("Legionella ko'payishiga eng qulay suv harorati?","20–45 °C","0–4 °C","60–70 °C","90 °C","Iliq suvda ko'payadi."),
+  Q("Kasallar va sog'lar dush ishlatganligini taqqoslash qaysi dizayn?","Holat–nazorat (OR)","Kogort (RR)","Kesma","Tajriba","Natijadan ta'sirga qarab yo'nalish."),
+  Q("Qaysi yuqish usuli asosiy?","Suv aerozolini nafas orqali olish","Ovqat orqali","Burga chaqishi","Qon orqali","Dush, sovutish minorasi aerozoli."),
+  Q("Qaysi guruh xavf ostida?","Keksalar, chekuvchilar, immuniteti susayganlar","Yosh sog'lom sportchilar","Faqat bolalar","Faqat vegetarianlar","Og'ir kechish xavf omillari."),
+  Q("Qaysi ob'ektlar xavfli?","Dush, sovutish minorasi, jakuzi, namlagich","Quruq tuproq","Pishirilgan taom","Qog'oz va kitoblar","Suv aerozoli hosil bo'ladigan joylar."),
+  Q("Eng samarali chora?","Suv tizimini tozalash, qizdirish va giperxlorlash","Bemorlarni karantin","Massaviy emlash","Deratizatsiya","Manba suvda."),
+  Q("Laboratoriya diagnostikasi uchun?","Siydikda L. pneumophila antigeni va balg'am PCR","Najasda antigen","Terini sinash","Qon VDRL","Legionella antigenuriyasi."),
+  Q("Joy-vaqt tahlili nimani aniqlaydi?","Bemorlarning qaysi binoda, qachon bo'lganini va umumiy suv tizimini","Faqat yoshini","Faqat jinsini","Menyu tarkibini","Manba lokalizatsiyasi."),
+ ],
+ ooi_cholera:[
+  Q("3 kunda 12 holat, hammasi bitta quduqdan ichgan. O'choq turi?","Suv omili (davomiy ta'sir)","Nuqtaviy ovqat omili","Aerozol","Transmissiv","Suv omilida manba davom etadi."),
+  Q("Inkubatsiya 1–5 kun. Kontaktlarni kuzatish?","5 kun","1 kun","14 kun","30 kun","Eng uzun inkubatsiya."),
+  Q("Qaysi guruhga kiradi?","O'ta xavfli (karantin) infeksiya","Sapronoz","Havo-tomchi infeksiya","Parenteral infeksiya","Vabo — karantin."),
+  Q("Dezinfeksiya uchun?","Xlorli preparatlar bilan namli dezinfeksiya","Faqat shamollatish","Quyosh nuri","UV lampa","Xlor vibrionga ta'sir qiladi."),
+  Q("Yuqish yo'li?","Suv (asosiy), ovqat va kontakt","Havo-tomchi","Parenteral","Transmissiv","Fekal-oral mexanizm."),
+  Q("Qishloqda 800 aholidan 16 holat. 1000 ga kasallanish?","20‰","2‰","16‰","200‰","16/800·1000 = 20."),
+  Q("Kontaktlar uchun?","Tibbiy kuzatuv, bakteriologik tekshiruv, ekstrenal profilaktika","Faqat uyga qaytarish","Emlash — yagona chora","Hech qanday tekshiruv","Izolyatsiya va profilaktika."),
+  Q("Birinchi gumonda nima qilinadi?","Darhol favqulodda xabar va izolyatsiya","Laboratoriyani 1 hafta kutish","Faqat davolash","Aholiga e'lon qilmaslik","Kechiktirish mumkin emas."),
+  Q("Qaysi laboratoriya usuli?","Najas yoki qusuqning bakteriologik ekmasi (V. cholerae O1/O139)","Qon biokimyosi","Siydik umumiy tahlili","Burun surtmasi","Vibrionni najasdan ajratish."),
+  Q("Tashuvchilarni aniqlash uchun?","Kontaktlar najasini ekish","Qon bosimini o'lchash","Rentgen","Kardiogramma","Bakteriologik skrining."),
+ ],
+ ooi_plague:[
+  Q("Bubon shakli qaysi yo'l bilan?","Burga chaqishi (transmissiv)","Suv","Havo-tomchi","Fekal-oral","Burga orqali."),
+  Q("O'pka shaklidagi bemor qanday xavf?","Havo-tomchi bilan yuqadi, qat'iy izolyatsiya","Xavf past","Faqat qon","Faqat ovqat","O'pka shakli kontagioz."),
+  Q("Tartib qanday bo'lishi kerak?","Avval dezinseksiya (burga), keyin deratizatsiya","Avval deratizatsiya","Faqat deratizatsiya","Faqat dezinfeksiya","Kemiruvchi o'lsa burga odamga o'tadi."),
+  Q("3 holat bir haftada. Birinchi chora?","Izolyatsiya, favqulodda xabar, profilaktika","Faqat davolash","Massaviy emlash","Faqat dezinfeksiya","Birinchi — xabar va izolyatsiya."),
+  Q("Kontaktlarni kuzatish muddati?","6 kun","2 kun","14 kun","21 kun","Maksimal inkubatsiya 6 kun."),
+  Q("Rezervuar?","Kemiruvchilar (yumronqoziq, kalamush) va ularning burgalari","Faqat odam","Faqat qushlar","Faqat suv","Tabiiy o'choq."),
+  Q("Tabiiy o'choqda kuzatuv?","Epizootiya nazorati: kemiruvchi o'limi, burga indeksi","Faqat odam statistikasi","Faqat suv tahlili","Faqat havo","Epizootiya xabarchi."),
+  Q("Kontaktlarga nima?","Antibiotik profilaktika va tibbiy kuzatuv","Hech narsa","Faqat vitaminlar","Emlash 1 oy","Ekstrenal profilaktika."),
+  Q("Bemor qayerga joylashtiriladi?","Boks yoki yarimboks, himoya kiyimda xodimlar","Umumiy palata","Uyda","Yotoqxona","O'ta xavfli rejim."),
+  Q("O'lgan bemor?","Ochmasdan, dezinfeksiya qilib, maxsus tartibda ko'mish","Oilaga berish","Oddiy qabristonga","Yoqmaslik","Qat'iy tartib."),
+ ],
+ ooi_anthrax:[
+  Q("Teri shakli, 5 ishchi, kasal hayvon bilan aloqa. Yuqish yo'li?","Kontakt (teri)","Transmissiv","Fekal-oral","Havo-tomchi","Teri shikasti orqali."),
+  Q("O'lik hayvon murdasi bilan?","Ochmasdan yoqish yoki chuqur ko'mish, o'choqni dezinfeksiya","Terisini sotish","Ochib ko'rish","Oddiy ko'mish","Spora saqlanadi."),
+  Q("Sporalarni yo'q qilish?","Avtoklav va kuchli dezinfektantlar, uzoq ekspozitsiya","Oddiy sovun","Quyosh","Qaynatmasdan","Spora chidamli."),
+  Q("Kontaktlar uchun?","Antibiotik profilaktika va kuzatuv","Hech narsa","Faqat dam","Faqat emlash","Ekstrenal profilaktika."),
+  Q("Eng ko'p shakl?","Teri (karbunkul)","O'pka","Ichak","Meningeal","Teri shakli ko'proq."),
+  Q("Teri shaklida inkubatsiya?","Odatda 2–3 kun (8 kungacha)","2–3 hafta","1–2 oy","Bir necha soat","Qisqa."),
+  Q("Bemor boshqalarga xavfi?","Past; asosiy xavf — spora saqlovchi ajratmalar va buyumlar","Juda yuqori","Havo orqali","Suv orqali","Dezinfeksiya zarur."),
+  Q("Hayvonlarga chora?","Karantin, emlash, kasallarni so'ymaslik","Sotish","Ko'chirish","Hech narsa","Veterinar nazorat."),
+  Q("Tuproq o'choqlari?","Sporalar o'nlab yil saqlanadi, nazorat kerak","Tez yo'qoladi","Qishda o'ladi","Suvda yuvilib ketadi","Doimiy o'choq."),
+  Q("Laboratoriya?","Karbunkul ajratmasidan surtma, ekma va PCR","Najas","Siydik","Burun surtmasi","Terisidagi ajratma."),
+ ],
+ ooi_tularemia:[
+  Q("Yuqish yo'llari?","Transmissiv (kana, chivin), kontakt, alimentar, aspiratsion","Faqat parenteral","Faqat havo-tomchi","Faqat jinsiy","Ko'p mexanizm."),
+  Q("Odamdan odamga yuqadimi?","Odatda yo'q","Ha, havo-tomchi","Ha, aloqa","Ha, suv","Epidemik zanjir yo'q."),
+  Q("Samarali chora?","Deratizatsiya, repellentlar, xavf guruhlarini emlash","Faqat izolyatsiya","Faqat antibiotik","Faqat suv","Tabiiy o'choq."),
+  Q("4 holat. Qaysi tahlil muhim?","Ta'sir anamnezi: cho'milish, o'rim-yig'im, kana chaqishi","Faqat yosh","Faqat jins","Faqat lab","Yuqish yo'li."),
+  Q("Rezervuar?","Kemiruvchilar (suv kalamushi), quyonlar","Faqat odam","Faqat qushlar","Faqat baliq","Tabiiy o'choq."),
+  Q("Inkubatsiya?","Odatda 3–7 kun (21 kungacha)","12–24 soat","1–2 oy","45–90 kun","Qisqa."),
+  Q("Emlash?","Tirik quruq vaksina xavf guruhlarida","Hamma bolalarga","Hech kimga","Faqat kasallarga","Epidemik ko'rsatma."),
+  Q("Suv orqali?","Iflos ochiq suvni qaynatmasdan ichmaslik","Suv xavfsiz","Faqat sovuq suv","Faqat quduq","Suv omili."),
+  Q("Mavsumiylik?","Yoz-kuz","Qish","Bahor","Yil bo'yi bir xil","Kana va chivin faol."),
+  Q("Diagnostika?","Serologik reaksiyalar, teri-allergik sinama","Faqat rentgen","Faqat EKG","Faqat siydik","Tulyarin sinamasi."),
+ ],
+ military:[
+  Q("Kazarmada 600 askardan 40 tasi. Kasallanish darajasi?","6,7%","40%","1,5%","0,67%","40/600·100 = 6,7%."),
+  Q("Qorin tifi mexanizmi?","Fekal-oral","Aerozol","Transmissiv","Kontakt-qon","Fekal-oral."),
+  Q("Surunkali tashuvchi?","Manba bo'lib qoladi: ro'yxat va nazorat","Zararsiz","Faqat yosh","Faqat bolalar","Tashuvchilik muhim."),
+  Q("Profilaktika?","Sanitariya nazorati, suv/ovqat, emlash","Faqat dezinfeksiya","Faqat izolyatsiya","Faqat antibiotik","Majmua."),
+  Q("Inkubatsiya?","Odatda 10–14 kun","6–12 soat","3 oy","1 yil","Qorin tifi."),
+  Q("Birinchi hafta diagnostika?","Qon ekmasi (gemokultura)","Najas parazit","Siydik","Balg'am","Bakteriemiya."),
+  Q("3 kunda 40 holat — eng ehtimol omil?","Umumiy oshxona mahsuloti yoki suv","Havo","Burga","Qon quyish","Bir martalik ta'sir."),
+  Q("Oshxona xodimlari?","Najas/o't bakteriologik va Vi-antitelalar","Qon bosimi","Rentgen","Kardiogramma","Tashuvchilar."),
+  Q("Kontaktlar kuzatuvi?","21 kun, kunlik termometriya","3 kun","7 kun","60 kun","Inkubatsiya."),
+  Q("Epidemik ko'rsatma bilan vaksina?","Vi-polisaxaridli","BCG","Qizamiqqa qarshi","Gripp","Qorin tifi."),
+ ],
+ disinfection:[
+  Q("Sporalarni ham yo'q qiladigan ishlov?","Sterilizatsiya","Dezinfeksiya","Dezinseksiya","Deratizatsiya","Spora — sterilizatsiya."),
+  Q("Bug'li sterilizatsiya rejimi?","132 °C, 2 atm, 20 daqiqa","100 °C, 1 atm, 5 daqiqa","120 °C, 0,1 atm, 3 daqiqa","160 °C, 1 daqiqa","Asosiy rejim."),
+  Q("Tozalash sifati qaysi proba bilan?","Azopiram va fenolftalein","Faqat ko'rik","Termometr","Bakteriologik","Qon va ishqor."),
+  Q("Nazorat ulushi?","Kamida 1%","0,01%","50%","Hammasi","Sutkalik ishlovdan."),
+  Q("Bemor ajratilgach o'choqda?","Yakuniy dezinfeksiya","Profilaktik","Joriy","Kafolatli","Yakuniy."),
+  Q("Quruq issiqlik rejimi?","180 °C, 60 daqiqa","100 °C, 60 daqiqa","132 °C, 20 daqiqa","250 °C, 1 daqiqa","Quruq issiqlik."),
+  Q("Dezinseksiya preparatlari?","Piretroidlar va fosfororganik birikmalar","Antikoagulyantlar","Xlorli","Aldegidlar","Insektitsidlar."),
+  Q("Kimyoviy dezinfeksiya vositalari?","Xlor, kislorod, aldegid va QAB asosli","Quritish","Qaynatish","UV","Kimyoviy usul."),
+  Q("Kamera dezinfeksiyasi nima uchun?","Kiyim-kechak, matras, yostiq","Devor","Pol","Suv","Kamera."),
+  Q("Samaradorlik nazorati?","Yuzalardan chayindi va BGKP yo'qligi","Faqat ko'rik","Faqat hid","Faqat harorat","Bakteriologik nazorat."),
+ ]
+};
+const OPT_FIX={
+ food:{1:["Umumiy manbaga bir martalik ta'sir; inkubatsiya — ta'sirdan boshlanishgacha vaqt","Odamdan odamga ketma-ket yuqish; inkubatsiyani aniqlab bo'lmaydi","Doimiy ta'sir manbasi; holatlar haftalar davomida to'xtamaydi","Mavsumiy ko'tarilish; inkubatsiya bu o'choqda ahamiyatsiz"],
+  2:["Ishonch oralig'i 1 ni qamraydi, olivye bo'yicha bog'liqlik ishonchsiz; gumon tovuqqa","Olivye ham, tovuq ham teng darajada isbotlangan manba hisoblanadi","RR>1 bo'lgani uchun olivye ham aniq manba, tovuq esa qo'shimcha omil","Olivye asosiy manba, chunki uning ishonch oralig'i kengroq"],
+  3:["Retrospektiv kogort: guruh ma'lum, kasallanish va RR hisoblanadi","Holat–nazorat: faqat kasallar tanlanadi, OR hisoblanadi","Kesma tadqiqot: bir paytdagi tarqalganlik baholanadi","Ekologik tadqiqot: tahlil guruh darajasida o'tkaziladi"],
+  4:["Qishloq xo'jalik hayvonlari va parrandalar (go'sht, tuxum)","Faqat kasal odamlar va ularning yaqin kontaktlari","Tuproq va suvda yashovchi erkin saprofit bakteriyalar","Kemiruvchilar va ularning burgalari tabiiy o'choqda"],
+  5:["Bemorlar najasi va qusuq, qolgan mahsulotlar, xodimlardan najas","Bemorlarning qoni va siydigi hamda kafe havosidan surtma","Faqat ichimlik suvi namunalari va idish yuvish suvi","Xodimlarning burun-halqum surtmasi va ish kiyimlari"],
+  7:["Gumon mahsulotni olib qo'yish, dezinfeksiya, xodimlarni tekshirish","Faqat bemorlarni davolash va regidratatsiya o'tkazish","Kafe atrofida karantin e'lon qilib, mehmonlarni emlash","Faqat ichimlik suvini xlorlash va qaynatishni tavsiya etish"],
+  8:["Tashuvchi doimiy manba bo'lishi mumkin; chetlatish va tekshirish","U faqat jabrlanuvchi, qo'shimcha chora talab qilinmaydi","Faqat uyda ovqatlangani sababli yuqqan, kafega aloqasi yo'q","Yuqish havo-tomchi yo'li bilan bo'lgani uchun xavfsiz"],
+  9:["Fekal-oral mexanizm, oziq-ovqat yo'li","Aerozol mexanizm, havo-tomchi yo'li","Transmissiv mexanizm, kanalar orqali","Kontakt-qon mexanizm, tibbiy muolajalar"]},
+ air:{3:["Tez o'sish: kontakt orqali yuqish, shoshilinch izolyatsiya kerak","Nuqtaviy manba: o'choq bir martalik, qo'shimcha chora shart emas","Pasayish bosqichi: o'choq o'z-o'zidan so'nmoqda","Sapronoz: manba atrof-muhit, odamlar orasida yuqmaydi"],
+  5:["Kasallarni ajratish, kontaktlar kuzatuvi, shamollatish va niqob","Oshxonani yopish, suvni xlorlash va idishlarni qaynatish","Barcha talabalarga 30 kunlik umumiy karantin e'lon qilish","Kontaktlarga antibiotik berish va emlashni kechiktirish"],
+  6:["Homiladorlik (II–III trimestr), semizlik, o'pka va yurak kasalliklari","Yosh 18–22 va yaxshi jismoniy tayyorgarlik holati","Ichak infeksiyalari bilan kasallanish anamnezi borligi","Yilning issiq mavsumida kasallanish va ko'p sayr qilish"],
+  8:["Burun-halqum surtmasi, kasallikning dastlabki kunlarida (PCR)","Najas namunasi, kasallikning ikkinchi haftasida (ekma)","Qon ekmasi, kasallikning uchinchi haftasida (gemokultura)","Siydik namunasi, kasallik davrining istalgan paytida"],
+  9:["Epidemik mavsum oldidan, kuzda","Epidemiya cho'qqisida, kasallanish eng yuqori paytda","Faqat kasallikni o'tkazganlardan keyin, tuzalgach","Mavsum tugagach, bahorda, kasallanish pasayganda"]},
+ par:{0:["Tekshirish va emlanmagan kontaktlarga vaksina ± immunoglobulin","30 kunlik tibbiy kuzatuv, qo'shimcha chorasiz","Keng spektrli antibiotiklar kursi va dam olish","21 kunlik qat'iy karantin va izolyatsiya"],
+  1:["Oxirgi holatdan 6 oy orqaga, maksimal inkubatsiyani qamrab","Oxirgi holatdan 2 hafta orqaga, qisqa inkubatsiyaga qarab","Oxirgi holatdan 1 oy orqaga, o'rtacha inkubatsiya bo'yicha","Faqat oxirgi bemor qabulidagi muolajalar bilan cheklanish"],
+  2:["Potensial manba deb baholash, tekshirish, ishni cheklash masalasini ko'rish","Topilmani e'tiborsiz qoldirish, chunki u o'zi alomatsiz","Darhol ishdan haydash va jazolash, tekshiruvsiz","Faqat vitaminlar kursi tayinlash va kuzatmaslik"],
+  3:["Fizik, kimyoviy va biologik (sporali) nazoratni birga qo'llash","Faqat vizual ko'rik va jurnaldagi yozuvlarni tekshirish","Faqat termometr va manometr ko'rsatkichlariga tayanish","Faqat hujjatlar va xodimlarning og'zaki hisobotiga tayanish"],
+  4:["Teri va shilliqni shikastlovchi tibbiy muolajalar, asboblar","Ifloslangan ovqat va suvni iste'mol qilish","Yo'talganda havodagi aerozol zarrachalarini nafas olish","Burga va kana chaqishi orqali transmissiv yo'l"],
+  5:["Davomiy manbali o'choq: omil bir necha oy amal qilgan","Nuqtaviy o'choq: ta'sir bir martalik va qisqa bo'lgan","Aerozol epidemiyasi: kasallar bir xonada nafas olgan","Suv omilli o'choq: umumiy suv tizimi ifloslangan"],
+  6:["Tug'ilgandan so'ng birinchi sutkada vaksina va immunoglobulin","Emlash bir oyligida, kuzatuv bilan boshlanadi","Faqat kuzatuv, emlash esa 6 oyligida","Emlashsiz, emizishni to'xtatish bilan cheklanish"],
+  7:["Retrospektiv tahlil: bemorlar ro'yxati, asboblar jurnali, sterilizatsiya hujjatlari","Oshxona menyusi va ovqat mahsulotlari partiyasini tahlil qilish","Ichimlik suvi tarkibi va quvurlar holatini tekshirish","Ventilyatsiya o'lchamlari va xona havo almashinuvini baholash"],
+  9:["Xodimlar va bemorlarni emlash, sterilizatsiya nazorati","Faqat xonalarni dezinfeksiya qilishni kuchaytirish","Faqat kasallarni ajratib izolyatsiya qilishga tayanish","Faqat suvni xlorlash va shamollatishni yaxshilash"]},
+ sapronoz:{1:["Odatda yo'q: manba — suv aerozoli, bemor xavfli emas","Ha, yo'talganda havo-tomchi orqali tez yuqadi","Ha, maishiy kontakt va umumiy buyumlar orqali","Ha, fekal-oral yo'l bilan oziq-ovqat orqali"],
+  3:["Holat–nazorat: natijadan ta'sirga qarab, OR hisoblanadi","Kogort: ta'sirdan natijaga qarab, RR hisoblanadi","Kesma tadqiqot: bir paytdagi tarqalganlik baholanadi","Tajriba: ta'sir tadqiqotchi tomonidan beriladi"],
+  4:["Suv aerozolini nafas orqali olish (dush, minoralar)","Ifloslangan ovqatni iste'mol qilish","Burga chaqishi orqali transmissiv yo'l","Qon va in'ektsiya orqali parenteral yo'l"],
+  5:["Keksalar, chekuvchilar, immuniteti susayganlar","Yosh sog'lom sportchilar va ularning murabbiylari","Faqat go'daklar va emizikli onalar","Faqat vegetarian ovqatlanuvchilar va ularning oilalari"],
+  6:["Dush, sovutish minorasi, jakuzi, namlagich","Quruq tuproq va changli ombor xonalari","Pishirilgan issiq taomlar va non mahsulotlari","Qog'oz, kitob va quruq mato buyumlari"],
+  7:["Suv tizimini tozalash, qizdirish va giperxlorlash","Kasallarni qat'iy karantinga olish va kuzatish","Mehmonxona xodimlarini massaviy emlash","Kemiruvchilarga qarshi deratizatsiya o'tkazish"],
+  8:["Siydikda L. pneumophila antigeni va balg'amda PCR","Najasda L. pneumophila antigeni va ekma","Qon zardobida VDRL va teri sinamasi","Burun surtmasida gripp virusi antigeni"],
+  9:["Bemorlar qaysi binoda va qachon bo'lgani hamda umumiy suv tizimi","Faqat bemorlarning yoshi va jinsi bo'yicha taqsimot","Faqat ovqatlanish menyusi va oshxona xodimlari","Faqat mehmonxona ish grafigi va to'lov ma'lumoti"]},
+ ooi_cholera:{0:["Suv omili: manba davom etib, davomiy ta'sir","Nuqtaviy ovqat omili: bir martalik ta'sir","Aerozol o'choq: havo orqali tez tarqalish","Transmissiv o'choq: chivin va burga orqali"],
+  2:["O'ta xavfli (karantin) infeksiya","Sapronoz — atrof-muhit infeksiyasi","Havo-tomchi infeksiyasi","Parenteral infeksiya"],
+  3:["Xlorli preparatlar bilan namli dezinfeksiya","Faqat xonalarni shamollatish va yoritish","Faqat quyosh nuri va quritish","Faqat UV lampa bilan nurlantirish"],
+  4:["Suv (asosiy), ovqat va maishiy kontakt","Havo-tomchi yo'li va aerozol","Parenteral yo'l, qon orqali","Transmissiv yo'l, hasharotlar orqali"],
+  6:["Tibbiy kuzatuv, bakteriologik tekshiruv, ekstrenal profilaktika","Faqat uyiga qaytarish va ogohlantirish","Faqat emlash va boshqa chora ko'rmaslik","Faqat bir marta tekshirib, kuzatuvsiz qoldirish"],
+  7:["Darhol favqulodda xabar berish va izolyatsiya qilish","Laboratoriya tasdig'ini 1 hafta kutib xabar berish","Faqat davolashni boshlab, xabarni keyinga qoldirish","Aholiga e'lon qilmay, mahalliy darajada yopish"],
+  8:["Najas yoki qusuqning bakteriologik ekmasi (V. cholerae O1/O139)","Qon biokimyosi va jigar fermentlari","Umumiy siydik tahlili va mikroskopiya","Burun-halqum surtmasi PCR tekshiruvi"],
+  9:["Kontaktlar najasini bakteriologik ekish orqali","Qon bosimi va yurak urishini o'lchab","Ko'krak qafasi rentgenogrammasi orqali","Elektrokardiogramma va ultratovush orqali"]},
+ ooi_plague:{0:["Burga chaqishi (transmissiv yo'l)","Ifloslangan suv ichish (suv yo'li)","Havo-tomchi orqali odamdan odamga","Fekal-oral yo'l bilan oziq-ovqatdan"],
+  1:["Havo-tomchi bilan yuqadi, qat'iy izolyatsiya kerak","Yuqish xavfi past, oddiy palata yetarli","Faqat qon orqali yuqadi, izolyatsiya shart emas","Faqat ovqat orqali yuqadi, kontakt xavfsiz"],
+  2:["Avval dezinseksiya (burga), keyin deratizatsiya","Avval deratizatsiya, keyin dezinseksiya","Faqat deratizatsiya, burgaga e'tibor bermasdan","Faqat xlorli dezinfeksiya bilan cheklanish"],
+  3:["Izolyatsiya, favqulodda xabar, kontaktlarga profilaktika","Faqat bemorlarni davolash va kuzatish","Hudud aholisini massaviy emlash, boshqasi shart emas","Faqat dezinfeksiya o'tkazib, xabar bermaslik"],
+  5:["Kemiruvchilar (yumronqoziq, kalamush) va ularning burgalari","Faqat kasal odamlar va ularning kontaktlari","Faqat yirtqich qushlar va qo'ng'izlar","Faqat suvdagi baliqlar va molyuskalar"],
+  6:["Epizootiya nazorati: kemiruvchilar o'limi, burga indeksi","Faqat odamlar orasida kasallanish statistikasi","Faqat ichimlik suvi sifati tahlili","Faqat havo harorati va namligini kuzatish"],
+  7:["Antibiotik profilaktika va 6 kunlik tibbiy kuzatuv","Faqat vitaminlar kursi va dam olish","Faqat bir oylik emlash kursi, kuzatuvsiz","Kuzatuvsiz, alomat chiqqanda murojaat qilishni tavsiya etish"],
+  8:["Boks yoki yarimboks, xodimlar himoya kiyimida","Umumiy palata, oddiy ish kiyimida xizmat","Uyda davolash, oila a'zolari bilan birga","Yotoqxona yoki ijtimoiy muassasa xonasida"],
+  9:["Ochmasdan, dezinfeksiya qilib, maxsus tartibda ko'mish","Oilaga topshirish, oddiy marosim bilan","Oddiy qabristonga ko'mish, dezinfeksiyasiz","Yoqmasdan, ochiq joyda qoldirish"]},
+ ooi_anthrax:{0:["Kontakt yo'li (teri shikasti orqali)","Transmissiv yo'l (hasharot chaqishi)","Fekal-oral yo'l (ifloslangan ovqat)","Havo-tomchi yo'li (yo'talish)"],
+  1:["Ochmasdan yoqish yoki chuqur ko'mish, o'choqni dezinfeksiya qilish","Terisini sotish va go'shtini iste'mol qilish","Ochib ko'rib, sababini aniqlab, oddiy ko'mish","Oddiy ko'mish, o'choqni dezinfeksiya qilmasdan"],
+  2:["Avtoklav va kuchli dezinfektantlar, uzoq ekspozitsiya","Oddiy sovun bilan yuvish yetarli","Quyosh nurida bir soat quritish yetarli","Qisqa muddat qaynatmasdan sovitish"],
+  3:["Antibiotik profilaktika va tibbiy kuzatuv","Faqat bir kunlik dam berish","Faqat umumiy vitaminlar kursi","Faqat ishdan chetlatish, kuzatuvsiz"],
+  4:["Teri shakli (karbunkul)","O'pka shakli (nafas yo'llari)","Ichak shakli (oshqozon-ichak)","Meningeal shakl (miya pardalari)"],
+  5:["Odatda 2–3 kun (8 kungacha)","2–3 hafta, sekin rivojlanadi","1–2 oy, uzoq yashirin davr","Bir necha soat bilan chegaralanadi"],
+  6:["Past: asosiy xavf — spora saqlovchi ajratma va buyumlar","Juda yuqori: havo orqali tez tarqaladi","Yuqori: ichimlik suvi orqali yuqadi","Yuqori: maishiy kontakt orqali yuqadi"],
+  7:["Hayvonlarni karantin qilish, emlash, kasallarni so'ymaslik","Hayvonlarni sotib yuborish va ko'chirish","Kuzatib, hech qanday chora ko'rmaslik","Hayvonlarni boshqa fermaga o'tkazish"],
+  8:["Sporalar o'nlab yil saqlanadi, nazorat kerak","Sporalar tez o'ladi, nazorat shart emas","Sporalar qishda o'ladi, bahorda xavf yo'q","Sporalar yomg'ir bilan yuvilib ketadi"],
+  9:["Karbunkul ajratmasidan surtma, ekma va PCR","Najas ekmasi va qon bosimi","Siydik tahlili va EKG tekshiruvi","Burun surtmasi va ko'krak rentgeni"]},
+ ooi_tularemia:{0:["Transmissiv (kana, chivin), kontakt, alimentar, aspiratsion","Faqat parenteral va jinsiy yo'llar","Faqat havo-tomchi yo'li, odamdan odamga","Faqat fekal-oral, odamdan odamga"],
+  1:["Odatda yo'q: epidemik zanjir hosil bo'lmaydi","Ha, yo'talganda havo-tomchi orqali","Ha, maishiy kontakt orqali","Ha, suv orqali odamdan odamga"],
+  2:["Deratizatsiya, repellentlar, xavf guruhlarini emlash","Faqat kasallarni izolyatsiya qilish","Faqat antibiotik berish va dam olish","Faqat suvni xlorlash"],
+  3:["Ta'sir anamnezi: cho'milish, o'rim-yig'im, kana chaqishi","Faqat bemorlarning yoshi va kasbi","Faqat bemorlarning jinsi va oilaviy ahvoli","Faqat laboratoriya natijalari, anamnezsiz"],
+  4:["Kemiruvchilar (suv kalamushi) va quyonlar","Faqat odamlar va uy mushuklari","Faqat qushlar va ularning tuxumlari","Faqat baliqlar va molyuskalar"],
+  6:["Tirik quruq vaksina xavf guruhlarida","Barcha bolalarga rejaviy emlash","Faqat kasal bo'lganlarga davo sifatida","Emlash umuman qo'llanilmaydi"],
+  7:["Ochiq iflos suvni qaynatmasdan ichmaslik","Ochiq suv xavfsiz, qaynatish shart emas","Faqat sovuq suv xavfli, issiq xavfsiz","Faqat quduq suvi xavfli, daryo xavfsiz"],
+  9:["Serologik reaksiyalar va teri-allergik sinama","Faqat ko'krak rentgeni","Faqat elektrokardiogramma","Faqat umumiy siydik tahlili"]},
+ military:{2:["Manba bo'lib qoladi: ro'yxatga olish va nazorat","Xavfsiz: boshqalarga yuqmaydi","Faqat yoshlar uchun xavfli","Faqat bolalar uchun xavfli"],
+  3:["Sanitariya nazorati, suv va ovqat nazorati, emlash","Faqat bino dezinfeksiyasi","Faqat kasallarni izolyatsiya qilish","Faqat antibiotiklar berish"],
+  5:["Qon ekmasi (gemokultura)","Najasdagi parazit tuxumlari","Siydikning umumiy tahlili","Balg'am mikroskopiyasi"],
+  6:["Umumiy oshxona mahsuloti yoki suv, bir martalik ta'sir","Havo-tomchi yo'li, uzoq ta'sir","Burga chaqishi, transmissiv yo'l","Qon quyish, parenteral yo'l"],
+  7:["Najas/o't bakteriologik tekshiruvi va Vi-antitelalar","Qon bosimi va yurak urishi","Ko'krak qafasi rentgeni","Kardiogramma va ultratovush"],
+  8:["21 kun, kunlik termometriya","3 kun, bir martalik tekshiruv","7 kun, haftalik tekshiruv","60 kun, oylik tekshiruv"]},
+ disinfection:{2:["Azopiram va fenolftalein probalari","Faqat vizual tekshiruv","Termometr ko'rsatkichi","Bakteriologik ekma"],
+  4:["Yakuniy dezinfeksiya","Profilaktik dezinfeksiya","Joriy dezinfeksiya","Kafolatli dezinfeksiya"],
+  6:["Piretroidlar va fosfororganik birikmalar","Antikoagulyant rodentitsidlar","Xlorli dezinfektantlar","Aldegidli vositalar"],
+  7:["Xlor, kislorod, aldegid va QAB asosli vositalar","Quritish, shamollatish va quyosh nuri","Qaynatish, bug' va quruq issiqlik","Ultrabinafsha nurlari va ultratovush"],
+  9:["Yuzalardan chayindi va BGKP yo'qligi","Faqat ko'z bilan ko'rik","Faqat hid va rang","Faqat harorat o'lchash"]}
+};
+for(const id in OPT_FIX){ for(const i in OPT_FIX[id]){ OB_HARD[id][i].opts=OPT_FIX[id][i]; } }
+
+const C0={ // faqat to'g'ri javob qisqartiriladi
+ par:{0:"Tekshirish; emlanmaganga vaksina ± immunoglobulin",2:"Manba deb baholash, tekshirish, ishni cheklash",6:"Birinchi sutkada vaksina va immunoglobulin",7:"Retrospektiv tahlil: ro'yxat, asboblar jurnali, sterilizatsiya hujjatlari"},
+ ooi_cholera:{6:"Kuzatuv, bakteriologik tekshiruv, profilaktika",8:"Najas/qusuqning bakteriologik ekmasi (O1/O139)"},
+ ooi_plague:{5:"Kemiruvchilar va ularning burgalari",6:"Epizootiya nazorati: kemiruvchilar o'limi",9:"Ochmasdan, dezinfeksiya qilib ko'mish"},
+ ooi_anthrax:{1:"Ochmasdan yoqish yoki chuqur ko'mish",2:"Avtoklav va kuchli dezinfektantlar",6:"Past; xavf — spora saqlovchi ajratmalar",7:"Karantin, emlash, kasallarni so'ymaslik"},
+ ooi_tularemia:{0:"Transmissiv, kontakt, alimentar, aspiratsion",1:"Odatda yo'q, epidemik zanjir bo'lmaydi",2:"Deratizatsiya, repellent, xavf guruhini emlash",3:"Kana chaqishi, cho'milish, o'rim-yig'im anamnezi",9:"Serologik reaksiyalar va allergik sinama"},
+ military:{2:"Manba bo'lib qoladi, nazorat kerak",3:"Sanitariya nazorati, suv-ovqat nazorati, emlash",6:"Umumiy oshxona mahsuloti yoki suv",7:"Najas/o't ekmasi va Vi-antitelalar"}
+};
+for(const id in C0){ for(const i in C0[id]){ OB_HARD[id][i].opts[0]=C0[id][i]; } }
+const F2={
+ ooi_tularemia:{5:["3–7 kun, 21 kungacha","12–24 soat, bir sutkagacha","20–30 kun, bir oyga yaqin","45–90 kun, 3 oygacha"]},
+ military:{4:["10–14 kun, 3–25 kungacha","6–12 soat, yarim sutkacha","60–90 kun, deyarli 3 oy","1 yil, uzoq yashirin davr"],9:["Vi-polisaxaridli vaksina","BCG, sil vaksinasi","Qizamiq-parotit vaksinasi","Mavsumiy gripp vaksinasi"]},
+ disinfection:{2:["Azopiram va fenolftalein probalari","Faqat vizual tekshiruv va hujjat","Faqat termometr va manometr","Faqat bakteriologik ekma"],
+  6:["Piretroidlar va fosfororganik birikmalar","Antikoagulyantlar, kemiruvchilarga qarshi","Xlorli, namli dezinfeksiya uchun","Aldegidli, asbob dezinfeksiyasi uchun"],
+  8:["Kiyim-kechak, matras, yostiq","Devor va shift bo'yog'i qatlami","Pol qoplamasi va deraza oynalari","Suv quvurlari va oziq-ovqat idishlari"],
+  9:["Yuzalardan chayindi, BGKP yo'qligi","Faqat ko'z bilan ko'rik o'tkazish","Faqat hid va rang o'zgarishi","Faqat havo harorati o'lchash"]}
+};
+for(const id in F2){ for(const i in F2[id]){ OB_HARD[id][i].opts=F2[id][i]; } }
+
+for(const id in OB_HARD){ if(OB_SCENARIOS[id]) OB_SCENARIOS[id].questions=OB_HARD[id]; }
+
+const OB_GROUPS=[
+ {t:"1. Fekal-oral mexanizmli antroponozlar", ref:"", ids:['ooi_cholera','military']},
+ {t:"2. Aerozol mexanizmli antroponozlar", ref:"", ids:['air']},
+ {t:"3. Kontakt (parenteral) mexanizmli antroponozlar", ref:"", ids:['par']},
+ {t:"4. Zoonozlar", ref:"", ids:['food','ooi_plague','ooi_anthrax','ooi_tularemia']},
+ {t:"5. Sapronozlar", ref:"", ids:['sapronoz']},
+ {t:"6. Dezinfeksiya choralari", ref:"", ids:['disinfection']}
+];
+renderObIntro=function(){
+  const root=document.getElementById('obIntro'); let n=0;
+  const blocks=OB_GROUPS.map(g=>{
+    const cards=g.ids.map(id=>{ const s=OB_SCENARIOS[id]; n++;
+      const d=GLOBAL.ob[id]; const meta=d?`Natija: ${d.correct} / ${s.questions.length}`:'▶ boshlash';
+      return `<div class="st-topic" onclick="obStartScenario('${id}')"><div class="ic">${s.icon} <span class="muted" style="font-size:.8rem">#${n}</span></div><h4>${s.title}</h4><p>${s.subtitle}</p><div class="meta">${meta}</div></div>`;}).join('');
+    return `<h3>${g.t} <span class="tag">${g.ref}</span></h3><div class="st-topics">${cards}</div>`;
+  }).join('');
+  root.innerHTML=`<p class="muted" style="margin-bottom:6px;">Infeksiyalar guruhlar bo'yicha tartiblangan. O'choqni tanlang.</p>${blocks}`;
+  document.getElementById('obChat').innerHTML=''; document.getElementById('obQuick').innerHTML='';
+};
+
+/* ===== GENERATORLAR: har bir test topshiruvchi uchun sonlar o'zgaradi ===== */
+const nf=(n,d=1)=>String(+(+n).toFixed(d)).replace('.',',');
+const pct=x=>nf(x)+'%';
+const pick=a=>a[Math.floor(Math.random()*a.length)];
+const shuf=a=>a.map(x=>[Math.random(),x]).sort((p,q)=>p[0]-q[0]).map(x=>x[1]);
+const MON=['yanvar','fevral','mart','aprel','may','iyun','iyul','avgust','sentyabr','oktyabr','noyabr','dekabr'];
+const dfmt=d=>`${d.getDate()}-${MON[d.getMonth()]}`;
+const dfull=d=>`${d.getDate()}-${MON[d.getMonth()]} ${d.getFullYear()}`;
+const addD=(d,n)=>{const x=new Date(d);x.setDate(x.getDate()+n);return x;};
+const addM=(d,n)=>{const x=new Date(d);const dd=x.getDate();x.setMonth(x.getMonth()+n);if(x.getDate()!==dd)x.setDate(0);return x;};
+const baseDate=()=>addD(new Date(),ri(-25,5));
+const hm=m=>`${String(Math.floor(m/60)%24).padStart(2,'0')}:${String(m%60).padStart(2,'0')}`;
+function mkQ(q,c,wr,why,f){ f=f||(x=>nf(x)); const cs=f(c); const set=[];
+  wr.forEach(w=>{ if(!isFinite(w)||w<0) return; const s=f(w); if(s!==cs&&!set.includes(s)) set.push(s); });
+  [1.4,0.7,1.9,0.5,2.6,0.3].forEach(k=>{ if(set.length<3){ const s=f(c*k); if(s!==cs&&!set.includes(s)) set.push(s);} });
+  return {q,opts:[cs,...set.slice(0,3)],a:0,why}; }
+function dateQ(q,c,wrs,why,f){ f=f||dfmt; const cs=f(c); const set=[];
+  wrs.forEach(w=>{ const s=f(w); if(s!==cs&&!set.includes(s)) set.push(s); });
+  let k=1; while(set.length<3){ const s=f(addD(c,k*4)); if(s!==cs&&!set.includes(s)) set.push(s); k++; }
+  return {q,opts:[cs,...set.slice(0,3)],a:0,why}; }
+const INT=x=>String(Math.round(x));
+/* --- umumiy generatorlar --- */
+const g_rr=(head,e,u)=>()=>{ const n1=ri(24,60),a=ri(Math.ceil(n1*.45),Math.ceil(n1*.85)),n2=ri(24,60),c=ri(1,Math.max(2,Math.floor(n2*.15)));
+  const rr=(a/n1)/(c/n2), or=(a*(n2-c))/((n1-a)*c);
+  return mkQ(`${head} ${e}: ${n1} kishidan ${a} nafari kasallandi; ${u}: ${n2} kishidan ${c} nafari. RR qancha?`,rr,[or,1/rr,(a/(a+c))/(n1/(n1+n2)),a/c],`RR = (${a}/${n1}) / (${c}/${n2}) = ${nf(rr)}. OR = ${nf(or)} — boshqa ko'rsatkich.`); };
+const g_af=(head)=>()=>{ const n1=ri(30,70),a=ri(Math.ceil(n1*.5),Math.ceil(n1*.85)),n2=ri(30,70),c=ri(2,Math.max(3,Math.floor(n2*.2)));
+  const rr=(a/n1)/(c/n2), af=(rr-1)/rr*100;
+  return mkQ(`${head} ta'sirlanganlarda ${n1} kishidan ${a} nafari, ta'sirlanmaganlarda ${n2} kishidan ${c} nafari kasallandi. Ta'sirlanganlar orasida kasallanishning qancha qismi shu omilga bog'liq (atributiv ulush)?`,af,[a/n1*100,a/(a+c)*100,(rr-1)*10,100-c/n2*100],`RR = ${nf(rr)}; AF% = (RR−1)/RR·100 = ${nf(af)}%.`,pct); };
+const g_or=(head)=>()=>{ const nc=ri(40,120),nk=ri(60,200),a=ri(Math.ceil(nc*.4),Math.ceil(nc*.8)),b=ri(Math.ceil(nk*.1),Math.ceil(nk*.4));
+  const c=nc-a,d=nk-b,or=(a*d)/(b*c);
+  return mkQ(`${head} ${nc} bemordan ${a} nafari, ${nk} nazoratdan ${b} nafari ta'sirlangan. OR qancha?`,or,[(a/nc)/(b/nk),1/or,(a*c)/(b*d),a/b],`OR = (${a}·${d})/(${b}·${c}) = ${nf(or)}. Holat–nazoratda RR emas, OR hisoblanadi.`); };
+const g_ve=(head)=>()=>{ const nv=ri(120,400),a=ri(1,6),nu=ri(120,400),b=ri(30,90);
+  const Iv=a/nv*100,Iu=b/nu*100,ve=(1-Iv/Iu)*100;
+  return mkQ(`${head} emlanganlar: ${nv} kishidan ${a} nafari kasallandi; emlanmaganlar: ${nu} kishidan ${b} nafari. Emlashning himoya samaradorligi (1 − RR)·100 qancha?`,ve,[Iv/Iu*100,Iu-Iv,100-Iv,Iu/Iv],`Iv = ${nf(Iv,2)}%, Iu = ${nf(Iu,2)}%; RR = ${nf(Iv/Iu,2)}; samaradorlik = ${nf(ve)}%.`,pct); };
+const g_hit=(dis,lo,hi,elo,ehi)=>()=>{ let R,e,cov; do{ R=rf(lo,hi,1); e=ri(elo,ehi)/100; cov=(1-1/R)/e*100; }while(cov>98||cov<30);
+  return mkQ(`${dis} uchun R₀ = ${nf(R)}. Vaksina himoya samaradorligi ${nf(e*100,0)}%. Jamoaviy immunitet uchun kerakli emlash qamrovi?`,cov,[(1-1/R)*100,100/R,(1-1/R)*e*100,cov+ (100-cov)/2],`Chegara = 1 − 1/R₀ = ${nf((1-1/R)*100)}%; samaradorlikka bo'lsak: ${nf(cov)}%.`,pct); };
+const g_sar=()=>{ const n=ri(60,160),m=ri(10,Math.floor(n*.4)),s=ri(4,Math.max(5,Math.floor((n-m-1)*.4))); const v=s/(n-m-1)*100;
+  return mkQ(`Bir bemor (birlamchi holat) bilan bir blokda ${n} talaba bo'lgan, ulardan ${m} nafari immun. Qolganlar orasida ${s} ikkilamchi holat. Ikkilamchi kasallanish darajasi (birlamchi bemorni hisobga olmagan holda)?`,v,[s/n*100,s/(n-m)*100,s/(n-1)*100,s/(n-m-1)*10],`Moyil kontaktlar = ${n}−${m}−1 = ${n-m-1}; ${s}/${n-m-1} = ${nf(v)}%.`,pct); };
+const g_ppv=(head)=>()=>{ const N=ri(4,20)*1000,pr=rf(0.5,8,1),se=ri(82,99),sp=ri(85,99);
+  const sick=N*pr/100,tp=sick*se/100,fp=(N-sick)*(100-sp)/100,ppv=tp/(tp+fp)*100,p50=se/(se+100-sp)*100;
+  return mkQ(`${head} ${N} kishi tekshirildi, tarqalganlik ${nf(pr)}%, test sezgirligi ${se}%, spesifikligi ${sp}%. Musbat natijaning PPV qiymati?`,ppv,[p50,se,sp,tp/N*100],`TP = ${nf(tp,0)}, FP = ${nf(fp,0)}; PPV = TP/(TP+FP) = ${nf(ppv)}%. Past tarqalganlikda PPV pasayadi.`,pct); };
+const g_npv=()=>{ const N=ri(4,20)*1000,pr=rf(2,20,1),se=ri(75,97),sp=ri(80,99);
+  const sick=N*pr/100,fn=sick*(100-se)/100,tn=(N-sick)*sp/100,npv=tn/(tn+fn)*100,n50=sp/(sp+100-se)*100;
+  return mkQ(`${N} kishi tekshirildi, tarqalganlik ${nf(pr)}%, sezgirlik ${se}%, spesifiklik ${sp}%. Manfiy natijaning NPV qiymati?`,npv,[n50,sp,se,100-pr],`FN = ${nf(fn,0)}, TN = ${nf(tn,0)}; NPV = TN/(TN+FN) = ${nf(npv)}%.`,pct); };
+const g_se=()=>{ const tp=ri(40,160),fn=ri(5,40),tn=ri(120,400),fp=ri(5,60),ask=pick(['se','sp']);
+  const se=tp/(tp+fn)*100,sp=tn/(tn+fp)*100;
+  return ask==='se'?mkQ(`Test natijalari: TP=${tp}, FN=${fn}, TN=${tn}, FP=${fp}. Sezgirlik?`,se,[sp,tp/(tp+fp)*100,tn/(tn+fn)*100,fn/(tp+fn)*100],`Se = TP/(TP+FN) = ${nf(se)}%.`,pct)
+   :mkQ(`Test natijalari: TP=${tp}, FN=${fn}, TN=${tn}, FP=${fp}. Spesifiklik?`,sp,[se,tn/(tn+fn)*100,tp/(tp+fp)*100,fp/(tn+fp)*100],`Sp = TN/(TN+FP) = ${nf(sp)}%.`,pct); };
+const g_lr=()=>{ const se=ri(70,98),sp=ri(70,98),lr=se/(100-sp);
+  return mkQ(`Testning sezgirligi ${se}%, spesifikligi ${sp}%. Musbat natija uchun LR+ qancha?`,lr,[se/sp,(100-se)/sp,sp/(100-se),(100-sp)/se],`LR+ = Se/(1−Sp) = ${se}/${100-sp} = ${nf(lr)}.`); };
+const g_nnt=()=>{ const iu=ri(8,30),iv=ri(1,Math.max(2,iu-4)),arr=iu-iv; const nnt=100/arr;
+  return mkQ(`Emlanmaganlarda kasallanish ${iu}%, emlanganlarda ${iv}%. Bitta kasallanishning oldini olish uchun nechta odamni emlash kerak (NNT)?`,nnt,[iu/iv,100/iv,100/iu,arr],`Xavf farqi = ${arr}%; NNT = 100/${arr} = ${nf(nnt)}.`); };
+const g_median=(unit,lo,hi)=>()=>{ const v=Array.from({length:6},()=>ri(lo,hi)); v.push(hi*2); const s=[...v].sort((a,b)=>a-b),med=s[3],mean=v.reduce((a,b)=>a+b)/7;
+  return mkQ(`Bir martalik ta'sirdan keyingi inkubatsiya muddatlari (${unit}): ${shuf(v).join(', ')}. Medianani toping.`,med,[mean,(s[0]+s[6])/2,s[4],s[2]],`Tartiblangan qator: ${s.join(', ')}; median = ${med}. O'rtacha (${nf(mean)}) chetki qiymatdan buziladi.`,x=>nf(x,x%1?1:0)+' '+unit); };
+const g_obs=(days,what)=>()=>{ const b=baseDate(); return dateQ(`${what} Oxirgi kontakt ${dfmt(b)} kuni bo'lgan. Eng uzun inkubatsiya ${days} kun bo'lsa, tibbiy kuzatuv qaysi sanagacha davom etadi?`,addD(b,days),[addD(b,Math.round(days/2)),addD(b,days*2),addD(b,days+7)],`${dfmt(b)} + ${days} kun = ${dfmt(addD(b,days))}.`); };
+const g_win=(lo,hi,what)=>()=>{ const s=baseDate(); const R=(a,b)=>`${dfmt(a)} – ${dfmt(b)}`;
+  return {q:`${what} Birinchi alomatlar ${dfmt(s)} kuni boshlangan. Inkubatsiya ${lo}–${hi} kun bo'lsa, yuqish ehtimoli bo'lgan sana oralig'i?`,opts:[R(addD(s,-hi),addD(s,-lo)),R(addD(s,lo),addD(s,hi)),R(addD(s,-hi),s),R(addD(s,-hi-hi),addD(s,-hi))],a:0,why:`Yuqish = alomat sanasi − inkubatsiya: ${R(addD(s,-hi),addD(s,-lo))}.`}; };
+const g_dil=(story)=>()=>{ const C1=pick([10,20,25,30]),C2=pick([0.2,0.5,1,2,3]),V=pick([5,10,15,20]); const ml=C2*V/C1*1000;
+  return mkQ(`${story} ${C1}% li asosiy eritmadan ${nf(C2)}% li ishchi eritma ${V} l tayyorlash kerak. Asosiy eritmadan necha ml olinadi?`,ml,[ml/10,ml*10,C2*V*10,V*1000-ml],`C₁V₁ = C₂V₂ → V₁ = ${nf(C2)}·${V}/${C1} = ${nf(ml/1000,3)} l = ${nf(ml,0)} ml.`,x=>nf(x,0)+' ml'); };
+const g_water=()=>{ const C1=pick([10,20,25]),C2=pick([0.5,1,2]),V=pick([10,20]); const ml=C2*V/C1*1000,w=V*1000-ml;
+  return mkQ(`${C1}% li asosiy eritmadan ${nf(C2)}% li ishchi eritma ${V} l tayyorlanmoqda. Asosiy eritmaga necha ml suv qo'shiladi?`,w,[ml,V*1000,w+ml/2,w-ml],`Asosiy eritma = ${nf(ml,0)} ml; suv = ${V*1000} − ${nf(ml,0)} = ${nf(w,0)} ml.`,x=>nf(x,0)+' ml'); };
+const g_chlor=()=>{ const V=ri(8,40),dose=ri(20,50),stock=ri(8,15)*10; const g=dose*V,l=g/stock;
+  return mkQ(`Suv tizimini giperxlorlash: hajm ${V} m³, kerakli erkin xlor ${dose} mg/l. Asosiy eritmada ${stock} g/l faol xlor bo'lsa, necha litr kerak?`,l,[l*10,l/10,dose*V/1000,g],`${dose} mg/l · ${V} m³ = ${g} g faol xlor; ${g}/${stock} = ${nf(l)} l.`,x=>nf(x)+' l'); };
+const g_cov=()=>{ const N=ri(3,30)*100,v=ri(Math.ceil(N*.7),Math.ceil(N*.97)); const c=v/N*100;
+  return mkQ(`Tumanda emlanishi lozim bo'lgan ${N} bolaning ${v} nafari dozani oldi. Qamrov?`,c,[(N-v)/N*100,v/(N+v)*100,v/N*10,c-(100-c)/2],`Qamrov = ${v}/${N}·100 = ${nf(c)}%.`,pct); };
+const g_drop=()=>{ const P1=ri(5,40)*100,P3=ri(Math.ceil(P1*.8),P1-10); const d=(P1-P3)/P1*100;
+  return mkQ(`Penta-1 ${P1} bolaga, Penta-3 ${P3} bolaga berilgan. Tushib qolish (drop-out) darajasi?`,d,[(P1-P3)/P3*100,P3/P1*100,P1-P3,d*2],`(${P1}−${P3})/${P1}·100 = ${nf(d)}%.`,x=>nf(x)+(x>100?'':'%')); };
+const g_need=(what)=>()=>{ const N=ri(5,40)*100,v=ri(Math.ceil(N*.6),Math.ceil(N*.9)); const need=Math.ceil(N*.95)-v;
+  return mkQ(`${what} ${N} ta, shundan ${v} tasi emlangan. 95% qamrovga yetish uchun yana nechtasini emlash kerak?`,need,[N-v,Math.ceil(N*.05),Math.ceil(N*.95),need+ri(8,25)],`Maqsad = ${Math.ceil(N*.95)}; ${Math.ceil(N*.95)}−${v} = ${need}.`,INT); };
+const g_mort=()=>{ const n=ri(5,40)*1000,k=ri(30,200),d=ri(2,Math.floor(k*.2)); const m=d/n*1e5;
+  return mkQ(`Aholi ${n}, kasallar ${k}, vafot etganlar ${d}. 100 000 aholiga o'lim ko'rsatkichi?`,m,[d/k*100,k/n*1e5,d/k*1e5,d/n*1000],`${d}/${n}·100 000 = ${nf(m,0)}. Letallik (${nf(d/k*100)}%) boshqa ko'rsatkich.`,x=>nf(x,x<100?1:0)); };
+const g_growth=()=>{ const c0=ri(2,6),c1=Math.round(c0*rf(1.5,2.3,1)); const r=c1/c0; const p5=c0*Math.pow(r,4);
+  return mkQ(`1-kuni ${c0}, 2-kuni ${c1} yangi holat. O'sish ko'rsatkichli (geometrik) bo'lib qolsa, 5-kuni taxminan nechta yangi holat kutiladi?`,p5,[c0+4*(c1-c0),c1*4,c0*Math.pow(r,3),c1+3*(c1-c0)],`Koeffitsient = ${c1}/${c0} = ${nf(r,2)}; 5-kun = ${c0}·${nf(r,2)}⁴ ≈ ${nf(p5,0)}.`,INT); };
+const g_flea=()=>{ const r=ri(15,60),f=ri(20,140),ix=f/r;
+  return mkQ(`${r} kemiruvchidan jami ${f} burga yig'ildi. Burga indeksi (bitta kemiruvchiga burga)?`,ix,[r/f,f/(f+r),f*100/r/10,r*f/100],`Indeks = ${f}/${r} = ${nf(ix,2)}.`,x=>nf(x,2)); };
+const g_sensadj=()=>{ const n=ri(80,300),p=ri(10,50),se=ri(60,90)/100; const t=p/se;
+  return mkQ(`${n} kemiruvchidan ${p} tasida PCR musbat. Testning sezgirligi ${nf(se*100,0)}% bo'lsa (spesifiklik yuqori), haqiqiy zararlanganlar taxminiy soni?`,t,[p*se,p,p/(1-se),p+n*(1-se)],`Haqiqiy zararlanganlar ≈ ${p}/${nf(se,2)} = ${nf(t,0)}.`,INT); };
+const g_share=()=>{ const m=[ri(2,9),ri(10,40),ri(15,60),ri(5,30)],tot=m.reduce((a,b)=>a+b),s=(m[1]+m[2])/tot*100;
+  return mkQ(`Tulyaremiya holatlari: iyun — ${m[0]}, iyul — ${m[1]}, avgust — ${m[2]}, sentyabr — ${m[3]}. Iyul–avgustga jami holatlarning necha foizi to'g'ri keladi?`,s,[m[2]/tot*100,(m[1]+m[2])/(tot-m[0])*100,m[2]/m[1]*100,(m[1]+m[2])/4],`(${m[1]}+${m[2]})/${tot}·100 = ${nf(s)}%.`,pct); };
+const g_proj=()=>{ const m=ri(60,150),a=ri(6,30),n=ri(400,1200); const e=a/m*n;
+  return mkQ(`Rotada ${m} askardan ${a} nafari kasallandi. Shu darajada batalonda (${n} kishi) taxminan nechta holat kutiladi?`,e,[a*n/100,a/n*m,e*1.5,a*n/m/10],`Daraja = ${a}/${m} = ${nf(a/m*100)}%; ${n}·${nf(a/m,3)} ≈ ${nf(e,0)}.`,INT); };
+const g_ctrl=()=>{ const n=ri(120,900); const c=Math.ceil(n/100);
+  return mkQ(`Sutkada ${n} dona buyum sterilizatsiya qilindi. Kamida 1% miqdorida nazorat qilinadigan buyumlar soni (butunga yaxlitlab)?`,c,[Math.floor(n/100),Math.ceil(n/50),Math.ceil(n/10),Math.ceil(n/200)],`${n}·0,01 = ${nf(n/100,2)} → ${c}.`,INT); };
+const g_time=()=>{ const s=ri(7*60,10*60),a=ri(15,30),b=ri(45,90),c=ri(15,30),d=ri(20,40); const e=s+a+b+c+d;
+  return {q:`Yakuniy dezinfeksiya ${hm(s)} da boshlandi: namlash ${a} daqiqa, ekspozitsiya ${b} daqiqa, yuvish ${c} daqiqa, shamollatish ${d} daqiqa (ketma-ket). Ishlov qachon tugaydi?`,opts:[...new Set([hm(e),hm(e-d),hm(e-c),hm(e+15),hm(e-a),hm(e+30),hm(e-10)])].slice(0,4),a:0,why:`${hm(s)} + ${a+b+c+d} daqiqa = ${hm(e)}.`}; };
+const g_cum=()=>{ const r=rf(0.2,1.2,1),n=ri(40,300); const p=(1-Math.pow(1-r/100,n))*100;
+  return mkQ(`Agar har bir invaziv muolajada yuqish ehtimoli ${nf(r)}% bo'lsa, ${n} ta muolajadan keyin kamida bittasida yuqish ehtimoli?`,p,[Math.min(99.9,r*n),Math.pow(1-r/100,n)*100,Math.min(99.9,p+(100-p)/2),r],`P = 1 − (1 − ${nf(r/100,4)})^${n} = ${nf(p)}%. Oddiy ko'paytirish (${nf(Math.min(99.9,r*n))}%) ehtimollarni noto'g'ri qo'shadi.`,pct); };
+const g_sched=()=>{ const d=baseDate(); return dateQ(`Kattalarda gepatit B vaksinasining 0–1–6 oylik sxemasida 1-doza ${dfull(d)} da berilgan. 3-doza qachon?`,addM(d,6),[addM(d,3),addM(d,12),addM(d,2)],`0–1–6: 3-doza 6 oydan keyin.`,dfull); };
+const g_hai=()=>{ const pd=ri(8,40)*100,k=ri(4,40); const r=k/pd*1000;
+  return mkQ(`Reanimatsiyada ${pd} bemor-kun davomida ${k} ta kasalxona ichi infeksiyasi qayd etildi. 1000 bemor-kunga ko'rsatkich?`,r,[k/pd*100,k/pd*1e5,pd/k,k],`${k}/${pd}·1000 = ${nf(r,2)}.`,x=>nf(x,2)); };
+const g_dev=()=>{ const pd=ri(8,40)*100,dd=ri(Math.ceil(pd*.3),Math.ceil(pd*.8)),k=ri(2,20); const u=dd/pd,r=k/dd*1000;
+  return mkQ(`Bir oyda ${pd} bemor-kun va ${dd} kateter-kun bo'ldi, kateterga bog'liq ${k} infeksiya aniqlandi. 1000 kateter-kunga infeksiya darajasi?`,r,[k/pd*1000,u*100,k/dd*100,k/(pd+dd)*1000],`${k}/${dd}·1000 = ${nf(r,2)}; kateter qo'llash koeffitsienti = ${nf(u,2)}.`,x=>nf(x,2)); };
+function g_exposure(){ const p=addD(baseDate(),0); p.setHours(ri(5,11),0,0,0); const m=ri(18,40);
+  const H=h=>{ const d=new Date(p.getTime()+h*3600000); return `${dfmt(d)}, ${String(d.getHours()).padStart(2,'0')}:00`; };
+  return {q:`Holatlarning cho'qqisi ${H(0)} ga to'g'ri keldi. Median inkubatsiya ${m} soat. Bir martalik ta'sir (ovqatlanish) qachon bo'lgan?`,opts:[H(-m),H(m),H(-m-12),H(-Math.max(6,m-12))],a:0,why:`Ta'sir = cho'qqi − median inkubatsiya = ${H(-m)}.`}; }
+
+/* ===== O'CHOQ SAVOLLARI: 4 ta generator + 6 ta tanlangan savol ===== */
+const OB_GEN={
+ food:[g_rr("Kafe o'chog'ida tovuq yeganlar —","tovuq yeganlar","yemaganlar"),g_exposure,g_af("Kafe o'chog'ida"),g_median('soat',10,36)],
+ air:[g_ve("Yotoqxonada gripp o'chog'i:"),g_hit('Gripp',1.5,2.6,60,90),g_sar,g_obs(7,"Gripp o'chog'ida.")],
+ par:[g_win(45,180,"Gepatit B."),g_ppv("HBsAg skriningi:"),g_cum,g_sched],
+ sapronoz:[g_rr("Mehmonxonada A qanot —","A qanot","B qanot"),g_chlor,g_obs(14,"Legionellyoz."),g_or("Legionellyoz, dush ishlatish:")],
+ ooi_cholera:[g_mort,g_growth,g_obs(5,"Vabo o'chog'ida."),g_dil("Vabo o'chog'ida dezinfeksiya uchun")],
+ ooi_plague:[g_flea,g_obs(6,"Chuma o'chog'ida."),g_sensadj,g_win(1,6,"Chuma.")],
+ ooi_anthrax:[g_rr("Fermada kuydirgi: kasal hayvon bilan ishlaganlar —","kasal hayvon bilan ishlaganlar","ishlamaganlar"),g_obs(8,"Kuydirgi o'chog'ida."),g_need("Fermadagi hayvonlar"),g_af("Ferma ishchilari orasida")],
+ ooi_tularemia:[g_ppv("Tulyaremiya teri-allergik sinamasi:"),g_obs(21,"Tulyaremiya o'chog'ida."),g_share,g_rr("O'rim-yig'imda tulyaremiya: ishtirok etganlar —","ishtirok etganlar","etmaganlar")],
+ military:[g_proj,g_median('kun',8,14),g_obs(21,"Qorin tifi o'chog'ida."),g_ve("Qorin tifiga qarshi Vi-emlash:")],
+ disinfection:[g_dil("Namli dezinfeksiya uchun"),g_ctrl,g_time,g_water]
+};
+const OB_KEEP={food:[1,2,3,5,7,8],air:[3,4,5,6,8,9],par:[0,2,3,5,6,7],sapronoz:[1,2,3,5,7,8],ooi_cholera:[0,2,3,6,7,8],ooi_plague:[1,2,3,5,6,8],ooi_anthrax:[1,2,5,6,7,9],ooi_tularemia:[1,3,5,6,7,9],military:[2,3,5,6,7,9],disinfection:[0,1,2,4,5,6]};
+for(const id in OB_GEN){ if(OB_SCENARIOS[id]) OB_SCENARIOS[id].questions=[...OB_GEN[id],...OB_KEEP[id].map(i=>OB_HARD[id][i])]; }
+
+let OB = createObFresh();
+function createObFresh(){ return {active:null, started:false, steps:{}, qIndex:0, answers:0}; }
+
+function obBot(h, answers){
+  const c=document.getElementById('obChat');
+  const d=document.createElement('div'); d.className='msg bot'; d.innerHTML=h;
+  c.appendChild(d);
+  if(answers){
+    const wrap=document.createElement('div'); wrap.className='msg bot';
+    const box=document.createElement('div'); box.className='ob-answers';
+    answers.forEach((opt,i)=>{
+      const b=document.createElement('button'); b.textContent=opt;
+      b.onclick=()=>obAnswer(i, opt, b);
+      box.appendChild(b);
+    });
+    wrap.appendChild(box); c.appendChild(wrap);
+  }
+  c.scrollTop=c.scrollHeight;
+}
+function obUser(t){
+  const c=document.getElementById('obChat');
+  const d=document.createElement('div'); d.className='msg user'; d.textContent=t;
+  c.appendChild(d); c.scrollTop=c.scrollHeight;
+}
+
+function renderObIntro(){
+  const root=document.getElementById('obIntro');
+  const cards = Object.values(OB_SCENARIOS).map(s=>`
+    <div class="st-topic" style="cursor:pointer;" onclick="obStartScenario('${s.id}')">
+      <div class="ic">${s.icon}</div>
+      <h4>${s.title}</h4>
+      <p>${s.subtitle}</p>
+      <div class="meta">▶ boshlash</div>
+    </div>`).join('');
+  root.innerHTML = `
+    <p class="muted" style="margin-bottom:12px;">O'choqni tanlang. Chatbot ma'lumot beradi va savollar beradi.</p>
+    <div class="st-topics">${cards}</div>`;
+  document.getElementById('obChat').innerHTML='';
+  document.getElementById('obQuick').innerHTML='';
+}
+
+function obStartScenario(id){
+  OB = createObFresh();
+  OB.active = id;
+  OB.started = true;
+  OB.qIndex = 0;
+  const sc = OB_SCENARIOS[id];
+  document.getElementById('obIntro').innerHTML=`<h3>${sc.icon} ${sc.title}</h3><p class="muted">${sc.subtitle}</p>`;
+  const quickMap = {
+    food: [{label:'Tashxis', q:'tashxis'},{label:'Egri chiziq', q:'egri'},{label:'Kim kasal?', q:'kim kasal'},{label:'Laboratoriya', q:'lab'},{label:'Choralar', q:'chora'}],
+    air: [{label:'Tashxis', q:'tashxis'},{label:'Egri chiziq', q:'egri'},{label:'Laboratoriya', q:'lab'},{label:'Choralar', q:'chora'}],
+    par: [{label:'Tashxis', q:'tashxis'},{label:'Egri chiziq', q:'egri'},{label:'Laboratoriya', q:'lab'},{label:'Choralar', q:'chora'}],
+    sapronoz: [{label:'Tashxis', q:'tashxis'},{label:'Laboratoriya', q:'lab'},{label:'Choralar', q:'chora'}],
+    ooi_cholera: [{label:'Tashxis', q:'tashxis'},{label:'Laboratoriya', q:'lab'},{label:'Choralar', q:'chora'}],
+    ooi_plague: [{label:'Tashxis', q:'tashxis'},{label:'Laboratoriya', q:'lab'},{label:'Choralar', q:'chora'}],
+    ooi_anthrax: [{label:'Tashxis', q:'tashxis'},{label:'Laboratoriya', q:'lab'},{label:'Choralar', q:'chora'}],
+    ooi_tularemia: [{label:'Tashxis', q:'tashxis'},{label:'Laboratoriya', q:'lab'},{label:'Choralar', q:'chora'}],
+    military: [{label:'Tashxis', q:'tashxis'},{label:'Laboratoriya', q:'lab'},{label:'Choralar', q:'chora'}],
+    rabies: [{label:'Tashxis', q:'tashxis'},{label:'Egri chiziq', q:'egri'},{label:'Kim kasal?', q:'kim kasal'},{label:'Laboratoriya', q:'lab'},{label:'Choralar', q:'chora'}],
+    tetanus: [{label:'Tashxis', q:'tashxis'},{label:'Egri chiziq', q:'egri'},{label:'Kim kasal?', q:'kim kasal'},{label:'Laboratoriya', q:'lab'},{label:'Choralar', q:'chora'}],
+    disinfection: [{label:'Dezinfeksiya', q:'dezinfeksiya'},{label:'Dezinseksiya', q:'dezinseksiya'},{label:'Deratizatsiya', q:'deratizatsiya'},{label:'Sterilizatsiya', q:'sterilizatsiya'}]
+  };
+  const qEl=document.getElementById('obQuick'); qEl.innerHTML='';
+  (quickMap[id]||[{label:'Tashxis',q:'tashxis'},{label:'Egri chiziq',q:'egri'},{label:'Kim kasal?',q:'kim kasal'},{label:'Laboratoriya',q:'lab'},{label:'Choralar',q:'chora'}]).forEach(item=>{
+    const b=document.createElement('button'); b.className='btn ghost'; b.textContent=item.label;
+    b.onclick=()=>obAsk(item.q); qEl.appendChild(b);
+  });
+  obBot(`🚨 <b>O'choq: ${sc.title}</b><br>${sc.subtitle}.<br><br>Savol bering yoki ma'lumot so'rang. Quyida savollar ham chiqadi.`);
+  obAskNextQuestion();
+}
+
+function obAskNextQuestion(){
+  const sc = OB_SCENARIOS[OB.active];
+  if(!sc) return;
+  if(OB.qIndex >= sc.questions.length){
+    obBot(`🏁 <b>Savollar tugadi.</b> Jami ${sc.questions.length} savol.<br><br>Xulosa: <b>${sc.final}</b><br><br>Boshqa o'choqni tanlashingiz mumkin.`);
+    return;
+  }
+  let q = sc.questions[OB.qIndex]; if(typeof q==='function') q=q();
+  const order = q.opts.map((o,i)=>i).sort(()=>Math.random()-0.5);
+  OB.current = {q, order, done:false};
+  obBot(`❓ <b>Savol ${OB.qIndex+1}/${sc.questions.length}.</b> ${q.q}`, order.map(i=>q.opts[i]));
+}
+function obAnswer(i, opt, btn){
+  const sc = OB_SCENARIOS[OB.active], cur = OB.current;
+  if(!cur || cur.done) return;
+  cur.done = true;
+  const ok = cur.order[i] === cur.q.a;
+  obUser(opt);
+  const btns = btn.parentNode.querySelectorAll('button');
+  btns.forEach((b,j)=>{ b.disabled=true; if(cur.order[j]===cur.q.a) b.style.borderColor='var(--good)'; });
+  if(!ok) btn.style.borderColor='var(--bad)';
+  if(ok) OB.answers++;
+  GLOBAL.ob[sc.id] = {answered:OB.qIndex+1, correct:OB.answers}; saveState(GLOBAL);
+  obBot(ok ? `✅ <b>To'g'ri.</b> ${cur.q.why}` : `❌ <b>Noto'g'ri.</b> To'g'ri javob: <b>${cur.q.opts[cur.q.a]}</b>. ${cur.q.why}`);
+  OB.qIndex++;
+  setTimeout(()=>{
+    obAskNextQuestion();
+    if(OB.qIndex >= sc.questions.length){ obBot(`Natija: <b>${OB.answers} / ${sc.questions.length}</b>.`); recordResult('ob',sc.id,sc.title,OB.answers,sc.questions.length); }
+  }, 600);
+}
+const OB_DEFS = {
+  dezinfeksiya:"Dezinfeksiya — patogen mikroorganizmlarni yo'q qilish (kimyoviy, fizikaviy, biologik usullar).",
+  dezinseksiya:"Dezinseksiya — zararli hasharotlarni yo'q qilish (insektitsidlar).",
+  deratizatsiya:"Deratizatsiya — kemiruvchilarni yo'q qilish (rodentitsidlar).",
+  sterilizatsiya:"Sterilizatsiya — barcha mikroorganizmlarni, shu jumladan sporalarni to'liq yo'q qilish (avtoklav, quruq issiqlik)."
+};
+function obAnswerFor(key){
+  const sc = OB_SCENARIOS[OB.active]; if(!sc) return null;
+  const k = key.toLowerCase();
+  if(OB_DEFS[k]) return OB_DEFS[k];
+  if(k.includes('tashxis')) return sc.diagnosis;
+  if(k.includes('egri')) return sc.curve;
+  if(k.includes('kim')||k.includes('kasal')) return sc.cases;
+  if(k.includes('lab')) return sc.lab;
+  if(k.includes('chora')) return sc.control;
+  if(k.includes('menyu')||k.includes('ovqat')) return sc.menu || "Bu o'choqda ovqat omili ahamiyatsiz.";
+  for(const d in OB_DEFS) if(k.includes(d.slice(0,6))) return OB_DEFS[d];
+  return null;
+}
+function obAsk(q){
+  if(!OB.active) return;
+  obUser(q);
+  obBot(obAnswerFor(q) || "Bu haqda ma'lumot yo'q. Tashxis, egri chiziq, laboratoriya yoki choralar haqida so'rang.");
+}
+function obSend(){
+  const inp=document.getElementById('obInput'); const v=inp.value.trim(); if(!v) return;
+  inp.value='';
+  if(!OB.active){ obUser(v); obBot("Avval yuqoridan o'choqni tanlang."); return; }
+  obAsk(v);
+}
+document.getElementById('obInput').addEventListener('keydown',e=>{ if(e.key==='Enter') obSend(); });
+
+/* ================= VAZIYATLI MASALALAR ================= */
+const SQ=(q,ok,a,b,c,why)=>({q,opts:[ok,a,b,c],a:0,why});
+const CAL=[
+ {lbl:"hayotining birinchi 24 soatida",v:["VGB-1"],m:0},
+ {lbl:"2–5 kunlikda",v:["BSJ-1"],m:0},
+ {lbl:"2 oylikda",v:["OPV-1","Rota-1","Pnevmo-1","Penta-1"],m:2},
+ {lbl:"3 oylikda",v:["OPV-2","Rota-2","Pnevmo-2","Penta-2"],m:3},
+ {lbl:"4 oylikda",v:["OPV-3","Rota-3","Penta-3","IPV-1"],m:4},
+ {lbl:"9 oylikda",v:["IPV-2"],m:9},
+ {lbl:"12 oylikda",v:["KPK-1","Pnevmo-3"],m:12},
+ {lbl:"16 oylikda",v:["AKDS-4","OPV-4"],m:16},
+ {lbl:"6 yoshda",v:["KPK-2"],m:72},
+ {lbl:"7 yoshda",v:["ADS-M-5","OPV-5"],m:84},
+ {lbl:"9 yoshda",v:["VPCH"],m:108},
+ {lbl:"16 yoshda",v:["ADS-M-6"],m:192}];
+const DOSES={OPV:[2,3,4,16,84],Rota:[2,3,4],Pnevmo:[2,3,12],Penta:[2,3,4],IPV:[4,9],KPK:[12,72],AKDS:[16],'ADS-M':[84,192],VGB:[0],BSJ:[0],VPCH:[108]};
+const DIS={VGB:"virusli gepatit B",BSJ:"sil",OPV:"poliomiyelit",Rota:"rotavirus infeksiyasi",Pnevmo:"pnevmokokk infeksiyasi",Penta:"difteriya, ko'kyo'tal, qoqshol, gepatit B va XIB infeksiyasi",IPV:"poliomiyelit",KPK:"qizamiq, epidemik parotit va qizilcha",AKDS:"difteriya, ko'kyo'tal va qoqshol","ADS-M":"difteriya va qoqshol",VPCH:"odam papilloma virusi infeksiyasi"};
+const ageTxt=m=>m<24?`${m} oylik`:`${m/12} yoshli`;
+const cj=e=>e.v.join(', ');
+const others=(arr,i,n)=>shuf(arr.map((x,j)=>j).filter(j=>j!==i)).slice(0,n);
+const c_age2vax=idx=>()=>{ const i=pick(idx),e=CAL[i];
+  return {q:`Milliy emlash kalendariga ko'ra bolaga ${e.lbl} qaysi emlash(lar) beriladi?`,opts:[cj(e),...others(CAL,i,3).map(j=>cj(CAL[j]))],a:0,why:`Kalendar: ${e.lbl} — ${cj(e)}.`}; };
+const c_vax2age=idx=>()=>{ const i=pick(idx),e=CAL[i],v=e.v[e.v.length-1];
+  return {q:`Milliy kalendarga ko'ra ${v} qaysi yoshda beriladi?`,opts:[e.lbl,...others(CAL,i,3).map(j=>CAL[j].lbl)],a:0,why:`${v} — ${e.lbl}.`}; };
+const c_dis=keys=>()=>{ const k=pick(keys),ds=Object.entries(DIS).filter(([a])=>a!==k).map(([a,b])=>b).filter((x,i,s)=>s.indexOf(x)===i&&x!==DIS[k]);
+  return {q:`${k} emlashi qaysi kasalliklarga qarshi himoya beradi?`,opts:[DIS[k],...shuf(ds).slice(0,3)],a:0,why:`${k}: ${DIS[k]}.`}; };
+const c_route=()=>pick([()=>SQ("Kalendarga ko'ra qaysi vaksina og'iz orqali beriladi?",pick(["OPV","Rota"]),"Penta","KPK","VPCH","OPV va Rota — og'iz orqali, qolganlari in'ektsiya orqali."),
+ ()=>SQ("Qaysi juftlik og'iz orqali yuboriladi?","OPV va Rota","Penta va IPV","KPK va Pnevmo","AKDS va VPCH","Og'iz orqali faqat OPV va Rota beriladi.")])();
+const c_penta=()=>SQ("Penta vaksinasi tarkibiga qaysi komponentlar kiradi?","AKDS, VGB va XIB","AKDS, IPV va Pnevmo","KPK, VGB va XIB","BSJ, AKDS va Rota","Penta — AKDS + gepatit B + Hib kombinatsiyalangan vaksinasi.");
+const c_simul=()=>{ const i=pick([2,3,4,6,9]),e=CAL[i],n=e.v.length; const o=[...new Set([n,n+1,n+2,n+3,n-1,n+4].filter(x=>x>=1))];
+  return {q:`Milliy kalendarga ko'ra ${e.lbl} nechta emlash (vaksina nomi) belgilangan?`,opts:o.slice(0,4).map(String),a:0,why:`${e.lbl}: ${cj(e)} — ${n} ta.`}; };
+const c_count=pool=>()=>{ const k=pick(pool),ms=DOSES[k]; const age=pick([3,5,8,10,14,18,30,60,80,100,150,200]); const c=ms.filter(x=>x<=age).length;
+  const o=[...new Set([c,c+1,c-1,c+2,c+3,c-2].filter(x=>x>=0))];
+  return {q:`${ageTxt(age)} bolada, kalendarga ko'ra, ${k} ning nechta dozasi allaqachon olingan bo'lishi kerak?`,opts:o.slice(0,4).map(String),a:0,why:`${k} dozalari (oy): ${ms.join(', ')}; ${age} oygacha — ${c} ta.`}; };
+const c_total=pool=>()=>{ const k=pick(pool),c=DOSES[k].length; const o=[...new Set([c,c+1,c+2,c+3,c-1,c+4].filter(x=>x>=1))];
+  return {q:`Milliy kalendarda ${k} jami nechta doza ko'zda tutilgan (bolalik va o'smirlik)?`,opts:o.slice(0,4).map(String),a:0,why:`${k}: ${DOSES[k].length} doza.`}; };
+const c_next=()=>{ const age=pick([1,3,5,6,10,13,18,40,80,100,150]); const i=CAL.findIndex(e=>e.m>age),e=CAL[i];
+  return {q:`Bolaning yoshi ${ageTxt(age)} (oldingi emlashlar to'liq bajarilgan). Kalendarga ko'ra navbatdagi emlash qachon va qaysi?`,opts:[`${e.lbl}: ${cj(e)}`,...others(CAL,i,3).map(j=>`${CAL[j].lbl}: ${cj(CAL[j])}`)],a:0,why:`Keyingi belgilangan yosh — ${e.lbl}.`}; };
+const c_date=()=>{ const ix=[2,3,4,5,6,7],i=pick(ix),e=CAL[i],d=addD(new Date(),-ri(30,700)); const f=dfull;
+  return dateQ(`Bola ${f(d)} da tug'ilgan. Kalendar bo'yicha ${e.v[e.v.length-1]} emlashi taxminan qaysi sanada belgilanadi (${e.lbl})?`,addM(d,e.m),[addM(d,e.m-1),addM(d,e.m+1),addM(d,e.m+2)],`${f(d)} + ${e.m} oy = ${f(addM(d,e.m))}.`,f); };
+const c_measles=()=>SQ("Epidemiologik vaziyatni hisobga olib, kalendarga qo'shimcha ravishda qizamiqqa qarshi emlash yana qaysi yoshda o'tkaziladi?","6 oylikdagi bolalarga ham","Tug'ilgandan keyin 24 soat ichida","3 oylikda Penta bilan birga","9 yoshda VPCH bilan birga","Kalendarga hozircha 6 oylikda qizamiqqa qarshi qo'shimcha emlash ham kiritilgan.");
+const c_hit=()=>g_hit('Qizamiq',12,18,95,99)();
+const c_measles95=()=>SQ("Qizamiq bo'yicha jamoaviy immunitet uchun KPK qamrovi qanday bo'lishi kerak?","kamida 95%","taxminan 60%","kamida 75%","taxminan 85%","Qizamiq juda yuqumli: ikki doza bilan ≥95% qamrov kerak.");
+const topic=(id,icon,title,desc,group,qs,scenario)=>({id,icon,title,desc,group,qs,scenario});
+const ST_TOPICS=[
+ topic('design','🔬',"Tadqiqot dizayni","Kogort, holat–nazorat, xatolar","Umumiy epidemiologiya",[
+  g_rr("Kogort tadqiqot:","ta'sirlanganlar","ta'sirlanmaganlar"),g_or("Holat–nazorat tadqiqot:"),g_af("Kogort tadqiqotda"),g_nnt,
+  ()=>SQ("Holat–nazorat tadqiqotida eng xos tizimli xato qaysi?","Eslash xatosi: kasallar ta'sirni aniqroq eslaydi","Kuzatuvdan chiqib ketish xatosi, uzoq davomiylik tufayli","Tasodifiy tanlama xatosi, kichik hajm tufayli","Sensurlash xatosi, yo'qolgan kuzatuvlar tufayli","Kasallar o'tmishdagi ta'sirni nazoratga nisbatan yaxshiroq eslaydi."),
+  ()=>SQ("Noyob kasallik sabablarini o'rganishda eng mos dizayn?","Holat–nazorat: kam holat ham yetarli, tez va arzon","Kogort: ko'p yillik katta guruh kuzatuvi kerak bo'ladi","Kesma tadqiqot: bir paytdagi tarqalganlik yetarli","Tajriba: kasal bo'lmaganlarga ta'sir berish","Noyob kasallikda kogort amaliy emas."),
+  ()=>SQ("RR = 1,0 (95% CI 0,8–1,3). To'g'ri talqin?","Ta'sir va natija o'rtasida bog'liqlik aniqlanmadi","Ta'sir himoya qiluvchi omil","Ta'sir xavfni 30% oshiradi","Ma'lumotlar xato, tadqiqot yaroqsiz","Ishonch oralig'i 1 ni qamraydi, farq yo'q."),
+  ()=>SQ("Kesma tadqiqotdan to'g'ridan-to'g'ri qaysi ko'rsatkich olinadi?","Tarqalganlik","Kasallanish (insidens)","Nisbiy xavf (RR)","Letallik","Bir paytdagi kesma — tarqalganlik."),
+  ()=>SQ("Chalg'ituvchi omil (konfaunder) belgisi qaysi?","Ta'sir va natija bilan bog'liq, lekin oraliq bosqich emas","Faqat natija bilan bog'liq","Faqat ta'sir bilan bog'liq","Tasodifiy xato manbai, tanlama hajmiga bog'liq","Konfaunder ikkala bilan bog'liq va sabab zanjirida emas."),
+  ()=>SQ("Tasodifiy nazoratli sinovning asosiy kuchi?","Tasodifiy taqsimlash noma'lum omillarni ham guruhlarga teng taqsimlaydi","Tadqiqot qisqa va arzon","Etika talablaridan ozod","Faqat kasal odamlar ishtirok etadi","Randomizatsiya konfaundingni kamaytiradi.")
+ ],"Tadqiqot dizaynlari va xavf ko'rsatkichlari bo'yicha masalalar."),
+ topic('screen','🧫',"Skrining va diagnostik test","Sezgirlik, spesifiklik, PPV","Umumiy epidemiologiya",[
+  g_se,g_se,g_ppv("Skrining:"),g_npv,g_lr,
+  ()=>SQ("Ketma-ket (ikkala test ham musbat bo'lsa musbat) qo'llash natijasi?","Spesifiklik oshadi, sezgirlik pasayadi","Sezgirlik oshadi, spesifiklik pasayadi","Ikkalasi ham oshadi","Ikkalasi ham o'zgarmaydi","Ketma-ket testlar yolg'on-musbatni kamaytiradi."),
+  ()=>SQ("Chegara qiymat (cut-off) pasaytirilsa nima bo'ladi?","Sezgirlik oshadi, spesifiklik pasayadi","Spesifiklik oshadi, sezgirlik pasayadi","Ikkalasi ham oshadi","PPV har doim oshadi","Past chegara ko'proq kasalni ushlaydi, lekin yolg'on-musbat ko'payadi."),
+  ()=>SQ("Prevalentlik pasaysa, bir xil testda PPV qanday o'zgaradi?","Pasayadi","Oshadi","O'zgarmaydi","NPV bilan birga nolga tushadi","PPV tarqalganlikka bog'liq."),
+  ()=>SQ("Skrining qo'llash uchun kasallikda qaysi shart muhim?","Aniqlangan oldingi bosqich va erta davo foyda berishi","Kasallik juda noyob va davolanmaydi","Faqat narx arzonligi","Test ishonchsiz bo'lsa ham bo'ladi","Erta aniqlash natijani yaxshilashi kerak."),
+  ()=>SQ("Skrining orqali umr uzayganday ko'rinishi (lead-time bias) nimani anglatadi?","Tashxis erta qo'yilgani uchun yashash muddati sun'iy uzayadi","Davo samarasi isbotlangan","Test spesifikligi oshgan","Tanlanma kichik","O'lim vaqti o'zgarmasa ham, tashxis erta bo'ladi.")
+ ],"Test natijalarini baholash."),
+ topic('vacc','💉',"Emlash va jamoaviy immunitet (umumiy)","Samaradorlik va chegara qamrov","Umumiy epidemiologiya",[
+  g_ve("Maktabda:"),g_ve("Harbiy qismda:"),g_hit('Gripp',1.5,2.6,60,90),g_hit('Qizamiq',12,18,95,99),g_need("Emlanishi lozim bo'lgan bolalar"),
+  ()=>SQ("Jamoaviy immunitet qanday himoya qiladi?","Emlanmagan odamlarni ham bilvosita himoya qiladi","Faqat emlanganlarni himoya qiladi","Faqat kasal bo'lganlarni himoya qiladi","Qamrovga bog'liq emas","Immun odamlar tarqalish zanjirini uzadi."),
+  ()=>SQ("Samaradorlik 90% bo'lgan vaksina bilan emlangan guruhda ham nega bir nechta holat bo'lishi mumkin?","Hech bir vaksina 100% himoya bermaydi","Vaksina ishlamagan","Emlash noto'g'ri qilingan har doim","Kasallik qaytalangan","Samaradorlik 90% — xavf 90% ga kamayadi."),
+  c_measles95,
+  ()=>SQ("Emlash qamrovi pasaygach epidemik xavf nima uchun oshadi?","Moyil odamlar to'planib, chegara qamrovdan pastga tushadi","Mikroblar kuchayadi har doim","Aholi soni kamayadi","Havo harorati o'zgaradi","Immunitetsizlar ko'payishi tarqalishni tezlashtiradi."),
+  ()=>SQ("Immunizatsiyadan keyingi nojo'ya hodisalar qanday kuzatiladi?","Aniqlash, ro'yxatga olish va tekshirish tizimi orqali","Ma'lumot to'planmaydi","Faqat shikoyat bo'lsa e'lon qilinadi","Faqat jiddiy o'lim holatlari yoziladi","Xavfsizlik nazorati muntazam bo'lishi kerak.")
+ ],"Emlash samaradorligi."),
+ topic('hai','🏥',"Kasalxona ichi infeksiyalari","Darajalar, kateter-kun, o'choq","Umumiy epidemiologiya",[
+  g_hai,g_dev,g_rr("Reanimatsiyada nafas apparatiga ulanganlar —","apparatga ulanganlar","ulanmaganlar"),g_or("Reanimatsiya o'choqi:"),g_af("Reanimatsiya bo'limida"),
+  ()=>SQ("Bir bo'limda 2 hafta ichida bir xil chidamli shtamm 4 bemorda topildi. Bu nima?","KII o'chog'i: manba va yuqish yo'lini qidirish kerak","Tasodifiy hodisa","Sapronoz","Faqat laboratoriya xatosi","Bir xil shtamm — umumiy manba."),
+  ()=>SQ("Eng samarali birinchi chora?","Qo'l gigienasi, kontakt izolyatsiya, yuzalar dezinfeksiyasi","Faqat antibiotik","Bo'limni e'tiborsiz qoldirish","Faqat emlash","Kontakt orqali yuqishni uzish."),
+  ()=>SQ("Manbani aniqlash uchun?","Bemorlar, xodimlar va yuzalardan namuna olib shtammlarni solishtirish","Faqat so'rovnoma","Faqat oshxona tekshiruvi","Faqat suv tahlili","Bakteriologik va molekulyar solishtirish."),
+  ()=>SQ("Qo'l gigienasining 5 lahzasi nimaga taalluqli?","Bemorga tegishdan oldin va keyin, aseptik muolajadan oldin, suyuqlik tegishidan keyin, bemor atrofiga tegishdan keyin","Faqat ovqatdan oldin","Faqat tualetdan keyin","Faqat smena boshlanishida","Tibbiy yordamda 5 asosiy lahza belgilangan."),
+  ()=>SQ("MRSA tashuvchi bemor uchun odatiy tartib?","Kontakt izolyatsiya va alohida asboblar","Izolyatsiyasiz umumiy palata","Havo-tomchi izolyatsiya doim","Faqat kuzatuv","Kontakt yo'li bilan yuqadi.")
+ ],"Kasalxona ichi infeksiyalari bo'yicha masalalar."),
+ topic('c1','👶',"Kalendar: 0–4 oylik emlashlar","VGB, BSJ, OPV, Rota, Pnevmo, Penta, IPV","O'zbekiston Milliy emlash kalendari",[
+  c_age2vax([0,1]),c_age2vax([2,3]),c_age2vax([4]),c_vax2age([0,1,4]),c_vax2age([2,3]),c_simul,c_count(['OPV','Rota','Penta','Pnevmo']),c_count(['IPV','OPV','Penta']),c_route,c_penta]),
+ topic('c2','🍼',"Kalendar: 9–16 oylik emlashlar","IPV-2, KPK-1, Pnevmo-3, AKDS-4, OPV-4","O'zbekiston Milliy emlash kalendari",[
+  c_age2vax([5]),c_age2vax([6]),c_age2vax([7]),c_vax2age([5,6,7]),c_vax2age([5,6,7]),c_count(['IPV','Pnevmo','KPK']),c_next,c_date,c_measles,c_dis(['KPK','AKDS','Pnevmo'])]),
+ topic('c3','🎒',"Kalendar: maktab yoshi (6–16 yosh)","KPK-2, ADS-M-5, OPV-5, VPCH, ADS-M-6","O'zbekiston Milliy emlash kalendari",[
+  c_age2vax([8]),c_age2vax([9]),c_age2vax([10]),c_age2vax([11]),c_vax2age([8,9,10,11]),c_vax2age([8,9,10,11]),c_count(['KPK','OPV','ADS-M']),c_total(['KPK','OPV','ADS-M']),c_dis(['VPCH','ADS-M','KPK']),c_next]),
+ topic('c4','🧬',"Kalendar: qaysi emlash qaysi kasallikka","Himoya, tarkib, yuborish yo'li","O'zbekiston Milliy emlash kalendari",[
+  c_dis(['VGB','BSJ','Rota']),c_dis(['Penta','Pnevmo','IPV']),c_dis(['KPK','AKDS','VPCH']),c_dis(['OPV','ADS-M','Penta']),c_penta,c_route,c_total(['OPV','Penta','Pnevmo','Rota']),c_total(['IPV','KPK','AKDS','ADS-M']),c_total(['VGB','BSJ','VPCH','Rota']),c_measles]),
+ topic('c5','📅',"Kalendar: sanalarni hisoblash","Tug'ilgan sanadan emlash sanalari","O'zbekiston Milliy emlash kalendari",[
+  c_date,c_date,c_date,c_date,c_date,c_date,c_next,c_next,c_next,c_next]),
+ topic('c6','📊',"Kalendar: qamrov va ko'rsatkichlar","Qamrov, tushib qolish, maqsad","O'zbekiston Milliy emlash kalendari",[
+  g_cov,g_cov,g_drop,g_drop,g_need("Tumandagi 1 yoshli bolalar"),g_need("Maktabdagi 6 yoshli bolalar"),c_hit,c_measles95,g_cov,g_drop]),
+ topic('c7','🧮',"Kalendar: doza hisobi va vaziyatlar","Yoshga qarab dozalar, navbatdagi emlash","O'zbekiston Milliy emlash kalendari",[
+  c_count(['OPV','Penta','Rota','Pnevmo']),c_count(['OPV','IPV','KPK']),c_count(['OPV','ADS-M','KPK']),c_count(['Penta','Pnevmo','IPV']),c_simul,c_simul,c_next,c_next,c_date,c_total(['OPV','IPV','Pnevmo','Penta'])])
+];
+let ST={topic:null,i:0,ok:0,locked:false,order:[],cur:null};
+function renderSituationsHome(){
+  const root=document.getElementById('stRoot'); const groups=[...new Set(ST_TOPICS.map(t=>t.group))];
+  root.innerHTML=`<div class="card"><h2>Vaziyatli masalalar</h2><p class="muted" style="margin-bottom:12px;">Har bir bo'limda 10 ta savol; sonlar har safar o'zgaradi.</p>${groups.map(g=>`<h3>${g}</h3><div class="st-topics">${ST_TOPICS.filter(t=>t.group===g).map(t=>{const r=GLOBAL.sit[t.id];return `<div class="st-topic" onclick="stOpen('${t.id}')"><div class="ic">${t.icon}</div><h4>${t.title}</h4><p>${t.desc}</p><div class="meta">${r?`Oxirgi natija: ${r.ok} / ${r.total}`:'▶ boshlash'}</div></div>`;}).join('')}</div>`).join('')}</div>`;
+}
+function stOpen(id){ ST={topic:ST_TOPICS.find(t=>t.id===id),i:0,ok:0,locked:false,order:[],cur:null}; stRender(); }
+function stRender(){
+  const t=ST.topic,root=document.getElementById('stRoot');
+  if(ST.i>=t.qs.length){
+    GLOBAL.sit[t.id]={ok:ST.ok,total:t.qs.length}; saveState(GLOBAL); recordResult('st',t.id,t.title,ST.ok,t.qs.length);
+    root.innerHTML=`<div class="card"><h2>${t.icon} ${t.title}</h2><p>Natija: <b>${ST.ok} / ${t.qs.length}</b> (${Math.round(ST.ok/t.qs.length*100)}%)</p><button class="btn" onclick="stOpen('${t.id}')">Qayta urinish (yangi sonlar)</button> <button class="btn ghost" onclick="renderSituationsHome()">← Mavzular</button> <button class="btn ghost" onclick="showTab('report')">Hisobot</button></div>`; return; }
+  let q=t.qs[ST.i]; if(typeof q==='function') q=q(); ST.cur=q;
+  ST.order=shuf(q.opts.map((o,i)=>i)); ST.locked=false; const L='ABCD';
+  root.innerHTML=`<div class="card"><h2>${t.icon} ${t.title} <span class="tag">${ST.i+1}/${t.qs.length}</span></h2>${t.scenario?`<div class="st-scenario">${t.scenario}</div>`:''}<p style="margin-bottom:10px;"><b>${q.q}</b></p><ul class="opt-list">${ST.order.map((oi,k)=>`<li onclick="stPick(${k})"><span class="lbl">${L[k]}</span>${q.opts[oi]}</li>`).join('')}</ul><div class="st-feedback" id="stFb"></div><div style="margin-top:12px;"><button class="btn ghost" onclick="renderSituationsHome()">← Mavzular</button></div></div>`;
+}
+function stPick(k){
+  if(ST.locked) return; ST.locked=true; const q=ST.cur,items=document.querySelectorAll('#stRoot .opt-list li');
+  const ok=ST.order[k]===q.a; if(ok) ST.ok++;
+  items.forEach((li,j)=>{ if(ST.order[j]===q.a) li.classList.add('correct'); }); if(!ok) items[k].classList.add('wrong');
+  const fb=document.getElementById('stFb'); fb.className='st-feedback '+(ok?'good':'bad');
+  fb.innerHTML=`${ok?"✅ <b>To'g'ri.</b>":"❌ <b>Noto'g'ri.</b>"} ${q.why}<div style="margin-top:10px;"><button class="btn" onclick="ST.i++;stRender()">Keyingisi →</button></div>`;
+}
+
+/* ================= AI-YORDAMCHI ================= */
+const M_KB=[
+ {k:['cagr','o\'sish'], a:"CAGR = ((oxirgi / boshlang'ich)^(1/n) − 1) · 100%, n — yillar soni."},
+ {k:['rr','nisbiy xavf'], a:"RR = [a/(a+b)] / [c/(c+d)] — ko'rilgan guruh xavfining ko'rilmagan guruh xavfiga nisbati. RR>1 — xavf omili."},
+ {k:['or','imkoniyat'], a:"OR = (a·d)/(b·c). Holat–nazorat tadqiqotlarida ishlatiladi."},
+ {k:['sezgir'], a:"Sezgirlik = TP/(TP+FN) · 100%."},
+ {k:['spesifik'], a:"Spesifiklik = TN/(TN+FP) · 100%."},
+ {k:['cfr','letal'], a:"Letallik (CFR) = o'lganlar / kasallanganlar · 100%."},
+ {k:['kasallanish','insidens'], a:"Kasallanish = (yangi holatlar / aholi) · 1000 (yoki 100 000)."},
+ {k:['tarqalgan','prevalens'], a:"Tarqalganlik = (mavjud holatlar / tekshirilganlar) · 100%."},
+ {k:['qamrov','emlash'], a:"Qamrov = (emlanganlar / kerak bo'lganlar) · 100%."},
+ {k:['o\'choq','daraja'], a:"O'choqdagi kasallanish darajasi = (kasallanganlar / xavf ostidagilar) · 100%."}
+];
+function mBot(h){ const c=document.getElementById('mChat'); const d=document.createElement('div'); d.className='msg bot'; d.innerHTML=h; c.appendChild(d); c.scrollTop=c.scrollHeight; }
+function mUser(t){ const c=document.getElementById('mChat'); const d=document.createElement('div'); d.className='msg user'; d.textContent=t; c.appendChild(d); c.scrollTop=c.scrollHeight; }
+function mAsk(text){
+  mUser(text);
+  const t=text.toLowerCase();
+  const hit=M_KB.find(e=>e.k.some(w=>t.includes(w)));
+  mBot(hit ? hit.a : "Formula yoki atama nomini yozing: CAGR, RR, OR, sezgirlik, spesifiklik, CFR, kasallanish, qamrov. Atamalar \"Lug'at\" bo'limida ham bor.");
+}
+function mSend(){ const i=document.getElementById('mInput'); const v=i.value.trim(); if(!v) return; i.value=''; mAsk(v); }
+document.getElementById('mInput').addEventListener('keydown',e=>{ if(e.key==='Enter') mSend(); });
+
+/* ================= HISOBOT ================= */
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+let _uid=null,_db=null;
+async function remoteInit(){ try{ if(!window.claude||!window.claude.use) return; const u=await window.claude.use('user'), db=await window.claude.use('db'); if(!u||!db) return; _uid=await u.id(); _db=db; syncRemote(); }catch(e){} }
+function taskSummary(){ let s=0; TASK_DEFS.forEach(d=>{ const x=GLOBAL.tasks[d.key]; if(x&&x.solvedFirst) s++; }); return {score:s,total:TASK_DEFS.length}; }
+async function syncRemote(){ try{ if(!_db||!_uid) return; await _db.doc('results/'+_uid).set({name:GLOBAL.name||'(ismsiz)',updated:Date.now(),tasks:taskSummary(),hist:(GLOBAL.hist||[]).slice(-80)}); }catch(e){} }
+function recordResult(kind,id,title,ok,total){ GLOBAL.hist=GLOBAL.hist||[]; GLOBAL.hist.push({ts:Date.now(),kind,id,title,ok,total}); if(GLOBAL.hist.length>200) GLOBAL.hist=GLOBAL.hist.slice(-200); saveState(GLOBAL); syncRemote(); }
+const KIND={ob:"Kasallik o'chog'i",st:"Vaziyatli masala"};
+const dt=ts=>{ const d=new Date(ts); return `${d.getDate()}-${MON[d.getMonth()]} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`; };
+const pc=(a,b)=>b?Math.round(a/b*100):0;
+function renderReport(){
+  const h=(GLOBAL.hist||[]), ts=taskSummary(); const root=document.getElementById('rpRoot');
+  const best={}; h.forEach(x=>{ const k=x.kind+':'+x.id; if(!best[k]||pc(x.ok,x.total)>pc(best[k].ok,best[k].total)) best[k]=x; });
+  const obB=Object.values(best).filter(x=>x.kind==='ob'), stB=Object.values(best).filter(x=>x.kind==='st');
+  const avg=a=>a.length?Math.round(a.reduce((s,x)=>s+pc(x.ok,x.total),0)/a.length):0;
+  const rows=h.slice().reverse().slice(0,40).map(x=>`<tr><td>${dt(x.ts)}</td><td>${KIND[x.kind]||x.kind}</td><td>${esc(x.title)}</td><td>${x.ok} / ${x.total}</td><td>${pc(x.ok,x.total)}%</td></tr>`).join('');
+  root.innerHTML=`<h2>Hisobot</h2><p class="muted">Ishtirokchi: <b>${esc(GLOBAL.name||'(ism kiritilmagan — "Boshlash" bo\'limida kiriting)')}</b></p>
+  <div class="scorebar"><span class="got">Vazifalar: ${ts.score} / ${ts.total}</span><span>O'choqlar: ${obB.length} ta, o'rtacha ${avg(obB)}%</span><span>Vaziyatli masalalar: ${stB.length} ta, o'rtacha ${avg(stB)}%</span><span>Jami urinishlar: ${h.length}</span></div>
+  <h3 style="margin-top:14px;">Oxirgi urinishlar</h3>
+  <div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:.9rem"><thead><tr style="text-align:left"><th>Sana</th><th>Tur</th><th>Bo'lim</th><th>Natija</th><th>%</th></tr></thead><tbody>${rows||'<tr><td colspan="5" class="muted">Hali test topshirilmagan.</td></tr>'}</tbody></table></div>
+  <div class="row" style="margin-top:12px;"><button class="btn" onclick="exportMine()">Mening natijalarim (CSV)</button><button class="btn ghost" onclick="loadAllResults()">Barcha ishtirokchilar (o'qituvchi)</button></div>
+  <div id="rpAll" style="margin-top:12px;"></div>`;
+}
+async function saveCsv(name,rows){
+  const csv='\ufeff'+rows.map(r=>r.map(c=>`"${String(c).replace(/"/g,'""')}"`).join(',')).join('\n');
+  try{ const d=window.claude&&window.claude.use?await window.claude.use('downloads'):null; if(d){ await d.save({filename:name,data:csv}); return; } }catch(e){}
+  const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'})); a.download=name; a.click(); URL.revokeObjectURL(a.href);
+}
+function exportMine(){ const rows=[['Ism','Sana','Tur','Bo\'lim','To\'g\'ri','Jami','Foiz']]; (GLOBAL.hist||[]).forEach(x=>rows.push([GLOBAL.name||'',dt(x.ts),KIND[x.kind]||x.kind,x.title,x.ok,x.total,pc(x.ok,x.total)])); saveCsv('mening_natijalarim.csv',rows); }
+async function loadAllResults(){
+  const box=document.getElementById('rpAll');
+  if(!_db){ box.innerHTML='<p class="muted">Umumiy saqlash mavjud emas (sahifa Claude orqali, tizimga kirgan holda ochilishi kerak).</p>'; return; }
+  try{
+    const snap=await _db.collection('results').get(); const list=snap.docs.map(d=>d.data());
+    if(!list.length){ box.innerHTML='<p class="muted">Hali hech kim natija yuborgani yo\'q.</p>'; return; }
+    const rows=list.map(p=>{ const hh=p.hist||[]; const a=hh.length?Math.round(hh.reduce((s,x)=>s+pc(x.ok,x.total),0)/hh.length):0; return {name:p.name||'(ismsiz)',n:hh.length,a,t:p.tasks?`${p.tasks.score}/${p.tasks.total}`:'-',u:p.updated,hh}; }).sort((x,y)=>y.a-x.a);
+    box.innerHTML=`<h3>Barcha ishtirokchilar (${rows.length})</h3><div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:.9rem"><thead><tr style="text-align:left"><th>Ism</th><th>Urinishlar</th><th>O'rtacha %</th><th>Vazifalar</th><th>Oxirgi faollik</th></tr></thead><tbody>${rows.map(r=>`<tr><td>${esc(r.name)}</td><td>${r.n}</td><td>${r.a}%</td><td>${r.t}</td><td>${r.u?dt(r.u):'-'}</td></tr>`).join('')}</tbody></table></div><button class="btn" style="margin-top:10px" id="rpCsv">Hammasini CSV qilib saqlash</button>`;
+    document.getElementById('rpCsv').onclick=()=>{ const out=[['Ism','Sana','Tur','Bo\'lim','To\'g\'ri','Jami','Foiz']]; rows.forEach(r=>r.hh.forEach(x=>out.push([r.name,dt(x.ts),KIND[x.kind]||x.kind,x.title,x.ok,x.total,pc(x.ok,x.total)]))); saveCsv('barcha_ishtirokchilar.csv',out); };
+  }catch(e){ box.innerHTML='<p class="muted">Bu ro\'yxatni faqat sahifa egasi (administrator) ko\'ra oladi.</p>'; }
+}
+remoteInit();
+
+/* ===== YANGI O'CHOQLAR: Qutirish va Qoqshol (O'zbekiston sharoitiga mos) ===== */
+const g_rabObs=()=>{ const b=baseDate(); return dateQ(`It odamni ${dfmt(b)} kuni tishladi. Hayvon veterinariya nazoratida 10 kun kuzatiladi. Kuzatuv qaysi sanada tugaydi?`,addD(b,10),[addD(b,14),addD(b,7),addD(b,30)],`${dfmt(b)} + 10 kun = ${dfmt(addD(b,10))}. Hayvon shu muddatda sog'lom qolsa, emlash kursi to'xtatilishi mumkin.`); };
+const g_rabPep=()=>{ const b=baseDate(),k=pick([3,7,14,30,90]); return dateQ(`Qutirishga qarshi emlash 0–3–7–14–30–90-kun sxemasi bo'yicha o'tkazilmoqda. 1-ukol ${dfull(b)} kuni qilindi. ${k}-kundagi ukol qaysi sanaga to'g'ri keladi?`,addD(b,k),[addD(b,k+3),addD(b,k-2),addD(b,Math.round(k*1.5))],`${dfull(b)} + ${k} kun = ${dfull(addD(b,k))}.`,dfull); };
+const g_rig=()=>{ const W=ri(15,90); return mkQ(`Odam qutirishga qarshi immunoglobulini 20 IU/kg dozada beriladi. Jabrlanuvchining vazni ${W} kg. Umumiy doza qancha?`,W*20,[W*40,W*2,W+20],`${W} kg · 20 IU/kg = ${W*20} IU.`,x=>nf(x,0)+' IU'); };
+const g_dogvac=()=>{ const N=ri(8,60)*10,v=ri(Math.ceil(N*.2),Math.ceil(N*.65)),need=Math.ceil(N*.7)-v; return mkQ(`Qishloqda ${N} ta it bor, ${v} tasi qutirishga qarshi emlangan. Nazorat uchun itlar orasida kamida 70% qamrov tavsiya etiladi. Yana nechta itni emlash kerak?`,need,[N-v,Math.ceil(N*.3),Math.ceil(N*.7)],`Maqsad = ${Math.ceil(N*.7)}; ${Math.ceil(N*.7)} − ${v} = ${need}.`,INT); };
+const g_tetWin=()=>{ const s=baseDate(),R=(a,b)=>`${dfmt(a)} – ${dfmt(b)}`; return {q:`Qoqshol alomatlari ${dfmt(s)} kuni boshlandi. Inkubatsiya 3–21 kun bo'lsa, jarohatlanish ehtimoli bo'lgan sana oralig'i?`,opts:[R(addD(s,-21),addD(s,-3)),R(addD(s,3),addD(s,21)),R(addD(s,-21),s),R(addD(s,-42),addD(s,-21))],a:0,why:`Jarohat sanasi = alomat sanasi − inkubatsiya: ${R(addD(s,-21),addD(s,-3))}.`}; };
+const g_tetBoost=()=>{ const d=addM(new Date(),-ri(12,110)); return dateQ(`Kattalarda ADS-M bilan revaksinatsiya har 10 yilda o'tkaziladi. Oxirgi doza ${dfull(d)} da olingan. Navbatdagi doza qachon?`,addM(d,120),[addM(d,60),addM(d,84),addM(d,180)],`${dfull(d)} + 10 yil = ${dfull(addM(d,120))}.`,dfull); };
+const g_tetCount=()=>{ const ms=[2,3,4,16,84,192],age=pick([3,5,8,18,60,90,150,200]),c=ms.filter(x=>x<=age).length; const o=[...new Set([c,c+1,c-1,c+2,c+3,c-2].filter(x=>x>=0))].slice(0,4).map(String);
+  return {q:`Milliy kalendarga ko'ra (Penta 2, 3, 4 oylikda; AKDS-4 — 16 oylikda; ADS-M-5 — 7 yoshda; ADS-M-6 — 16 yoshda) ${ageTxt(age)} bolada qoqsholga qarshi komponentli nechta doza olingan bo'lishi kerak?`,opts:o,a:0,why:`Dozalar (oy): ${ms.join(', ')}; ${age} oygacha — ${c} ta.`}; };
+OB_SCENARIOS.rabies={id:'rabies',icon:'🐕',title:'Zoonoz parenteral infeksiya: Qutirish',subtitle:'Qishloq, daydi itlar',
+ diagnosis:"Daydi it 6 kishini tishladi. Hayvonda so'lak oqishi, tajovuzkorlik, suvdan qo'rqish (gidrofobiya) kuzatilgan — qutirishga gumon.",
+ curve:"Tishlash holatlari: 1-kun — 2 kishi, 2-kun — 3 kishi, 3-kun — 1 kishi. Jami 6 jabrlanuvchi.",
+ cases:"6 jabrlanuvchi: 3 nafarida qo'l barmoqlari, 2 nafarida yuz, 1 nafarida oyoq jarohati. It tutildi va veterinariya nazoratiga olindi.",
+ lab:"It miyasida qutirish virusi antigeni (immunofluoresensiya) aniqlandi.",
+ control:"Jarohatni oqar suv va sovun bilan 15 daqiqa yuvish, zudlik bilan tibbiyot muassasasiga yuborish, qutirishga qarshi emlash (kerak bo'lsa immunoglobulin bilan), daydi hayvonlarni tutish, uy itlarini emlash, veterinariya xizmati bilan hamkorlik.",
+ final:"Manba — qutirgan it; yuqish — tishlash va so'lak orqali. Alomatlar boshlangach davo yo'q, shuning uchun yagona himoya — tishlashdan keyingi tezkor profilaktika.",
+ questions:[g_rabObs,g_rabPep,g_rig,g_dogvac,
+  Q("Tishlashdan keyin birinchi yordam qanday?","Jarohatni oqar suv va sovun bilan 15 daqiqa yuvish, so'ng shifokorga borish","Jarohatni darhol yod bilan kuydirib, qattiq tikish","Qon oqishini to'liq to'xtatish uchun jarohatni qattiq bog'lash","Jarohatga malham surtib, 3 kun kuzatish","Yuvish virus miqdorini kamaytiradi; so'ng tibbiy yordam kerak."),
+  Q("Qaysi jabrlanuvchilarga emlash bilan birga immunoglobulin ham kerak?","Bosh, yuz, bo'yin, qo'l barmoqlari yoki ko'p va chuqur jarohat (III toifa)","Kiyim ustidan yengil tirnalgan, qonamagan","Faqat sog'lom itning ustidan teriga tegishi","Faqat 60 yoshdan oshganlar","Xavfli joylashgan va og'ir jarohatlarda passiv immunizatsiya kerak."),
+  Q("Qutirish inkubatsiyasi va oqibati haqida qaysi fikr to'g'ri?","Odatda 1–3 oy (kunlardan yillargacha); alomatlar boshlangach deyarli doim o'limga olib keladi","Odatda 2–4 kun; to'liq davolanadi","Odatda 6–12 soat; antibiotik bilan davolanadi","Har doim 1–2 yil; alomatsiz o'tadi","Shuning uchun alomatlarni kutmasdan profilaktika boshlanadi."),
+  Q("Jarohatga tikuv qo'yish haqida to'g'ri qoida?","Dastlabki kunlarda tikuv qo'yilmaydi, zarurat bo'lsa kechiktiriladi","Qon oqishi uchun darhol mahkam tikiladi","Faqat yuz jarohatlari tikilmaydi","Tikuv emlashdan oldin majburiy","Tikuv virusni chuqurroq tarqatishi mumkin."),
+  Q("Hayvonlar orasida profilaktika qanday?","Uy itlari va mushuklarini majburiy emlash, daydi hayvonlarni nazorat qilish","Faqat daydi hayvonlarni boqish","Faqat odamlarni emlash","Faqat jarohatlangan hayvonni davolash","Odam qutirishining oldi hayvonlarda to'xtatiladi."),
+  Q("O'zbekistonda qutirishga qarshi emlash qanday joriy qilingan?","Rejali kalendarga kirmaydi: xavf guruhlariga tavsiyaviy va tishlashdan keyin ko'rsatma bo'yicha","Barcha chaqaloqlarga 2 oylikda majburiy","Faqat 16 yoshda majburiy","Faqat harbiy xizmatchilarga","Rejali kalendarda 13 ta kasallik bor; qutirish tavsiyaviy emlashlar qatorida.")
+ ]};
+OB_SCENARIOS.tetanus={id:'tetanus',icon:'🌱',title:'Sapronoz: Qoqshol',subtitle:'Qishloq xo\'jaligi ishlari, jarohatlanish',
+ diagnosis:"Dala ishida jarohatlangan 3 kishida jag' mushaklarining qotishi (trizm), yuz mushaklari spazmi va tovush-yorug'likka qo'zg'aluvchanlik — qoqshol klinikasi.",
+ curve:"Alomatlar boshlanishi: 6-kun — 1, 9-kun — 1, 12-kun — 1. Jami 3 ta alohida holat, o'zaro bog'liq emas.",
+ cases:"3 erkak, 38–56 yosh; hech biri oxirgi 10 yilda qoqsholga qarshi emlanmagan. Jarohat: oyoqqa tikan, cho'p va chorva bilan ishlashda shikastlanish.",
+ lab:"Qoqshol asosan klinik tashxis; jarohat ajratmasi va tuproqdan Clostridium tetani sporalari topilishi mumkin, lekin tasdiq majburiy emas.",
+ control:"Jarohatga jarrohlik ishlov, qoqsholga qarshi shoshilinch profilaktika (anatoksin ± odam immunoglobulini), bemorni shifoxonaga yotqizish, aholining emlanganlik holatini tekshirish va ADS-M bilan revaksinatsiya.",
+ final:"Manba — tuproq (sapronoz); yuqish — jarohat orqali; odamdan odamga yuqmaydi. Himoya — emlash va jarohatdan keyingi shoshilinch profilaktika.",
+ questions:[g_tetWin,g_tetBoost,g_tetCount,g_need("Qishloq xo'jaligi ishchilari (qoqsholga qarshi emlanishi lozim)"),
+  Q("To'liq emlangan (≥3 doza), oxirgi doza 3 yil oldin. Iflos jarohat. Nima qilinadi?","Jarohatga ishlov; qo'shimcha anatoksin va immunoglobulin shart emas","Anatoksin va immunoglobulin birga","Faqat immunoglobulin","Emlash kursi qaytadan 3 dozada","Oxirgi doza 5 yildan kam bo'lsa, qo'shimcha dozasiz himoya saqlanadi."),
+  Q("Emlanmagan yoki holati noma'lum odamda iflos jarohat. To'g'ri chora?","Jarohatga ishlov, anatoksin (kursni boshlash) va odam qoqshol immunoglobulini","Faqat antibiotik","Faqat jarohat bog'lami","Faqat 1 hafta kuzatuv","Himoyasiz odamda faol va passiv immunizatsiya birga beriladi."),
+  Q("Qoqshol qanday yuqadi?","Sporalar jarohat orqali kiradi; odamdan odamga yuqmaydi","Havo-tomchi yo'li bilan","Ifloslangan ovqat orqali","Chivin chaqishi orqali","Sapronoz — manba tuproq."),
+  Q("Yangi tug'ilgan chaqaloqlar qoqsholining oldini olish?","Homilador ayollarni emlash va toza tug'ruq sharoiti","Chaqaloqqa antibiotik","Faqat ona suti","Chaqaloqni izolyatsiya qilish","Ona antitanalari chaqaloqni himoya qiladi."),
+  Q("Qo'zg'atuvchining tashqi muhitdagi xususiyati?","Anaerob spora hosil qiladi va tuproqda yillar davomida saqlanadi","Tuproqda tez nobud bo'ladi","Faqat suvda yashaydi","Faqat havoda yashaydi","Sporalar chidamli, shuning uchun muhitni yo'qotib bo'lmaydi."),
+  Q("Milliy kalendarda qoqsholga qarshi komponent qaysi yoshlarda bor?","2, 3, 4 va 16 oylikda; 7 va 16 yoshda","Faqat 2, 3 va 4 oylikda","Tug'ilganda, 2 oylikda va 6 yoshda","9 oylik, 12 oylik va 9 yoshda","Penta, AKDS-4, ADS-M-5 va ADS-M-6.")
+ ]};
+/* ===== QO'SHIMCHA O'CHOQLAR (kalendar-tematik reja bo'yicha) ===== */
+const g_para=()=>{ const p=ri(20,180); const v=p/200*8000; return mkQ(`Qalin tomchi surtmasida 200 ta leykotsit sanalganda ${p} ta bezgak parazit topildi. Leykotsitlar soni 8000/µl deb qabul qilinsa, parazitemiya (1 µl qonda)?`,v,[p/200*100,p*200,p/8000,p*8000/100],`${p}/200·8000 = ${nf(v,0)} parazit/µl.`,x=>nf(x,0)); };
+const g_prev=()=>{ const n=ri(80,400),k=ri(6,Math.floor(n*.4)); const v=k/n*100; return mkQ(`Bog'chada ${n} bola tekshirildi, ${k} nafarida enterobioz tuxumlari topildi. Tarqalganlik?`,v,[k/(n-k)*100,k/n*1000,(n-k)/n*100,k],`${k}/${n}·100 = ${nf(v)}%.`,pct); };
+const g_rep=()=>{ const s=pick([40,50,60]),n=pick([2,3,4]); const c=(1-Math.pow(1-s/100,n))*100; return mkQ(`Perianal qirindi bir martalik tekshiruvining sezgirligi ${s}%. ${n} kun ketma-ket qirindi olinsa, umumiy sezgirlik?`,c,[s*n>99?99:s*n,s,Math.pow(s/100,n)*100,(s+100)/2],`1 − (1 − ${nf(s/100,2)})^${n} = ${nf(c)}%.`,pct); };
+const g_route=()=>{ const L=ri(12,60),v=pick([4,5,6]),pts=ri(3,8),t=ri(10,25); const tot=Math.round(L/v*60+pts*t); const f=m=>`${Math.floor(m/60)} soat ${m%60} daq`;
+  return mkQ(`Razvedka guruhi marshruti ${L} km, tezlik ${v} km/soat; yo'lda ${pts} nuqtada har birida ${t} daqiqa namuna olinadi. Umumiy vaqt?`,tot,[Math.round(L/v*60),tot+t,tot-t,Math.round(L/v*60*1.5)],`${L}/${v} soat + ${pts}·${t} daqiqa = ${f(tot)}.`,f); };
+const N_=(id,icon,title,sub,d,c,k,l,ct,fin,gens,st)=>{ OB_SCENARIOS[id]={id,icon,title,subtitle:sub,diagnosis:d,curve:c,cases:k,lab:l,control:ct,final:fin,questions:[...gens,...st]}; };
+N_('shigella','🚽',"Ichak infeksiyasi: Shigellyoz","Bolalar bog'chasi","Bolalarda suvli-shilimshiq ich ketish, isitma, tenezm. Shigellyozga gumon.","1-kun — 2, 2-kun — 6, 3-kun — 5, 4-kun — 2. Jami 15.","15 bola va 1 tarbiyachi; barchasi bitta guruhda.","Najas ekmasida S. sonnei; sut mahsulotida ham aniqlandi.","Kasallarni ajratish, kontaktlarni 7 kun kuzatish, joriy va yakuniy dezinfeksiya, sut mahsuloti partiyasini olib qo'yish.","Manba — ifloslangan sut mahsuloti; yuqish yo'li — fekal-oral.",
+ [g_rr("Bolalar bog'chasida sut mahsulotini iste'mol qilganlar —","sut mahsulotini iste'mol qilganlar","iste'mol qilmaganlar"),g_obs(7,"Shigellyoz."),g_sar,g_median('soat',24,60)],
+ [Q("Shigellyozning asosiy yuqish mexanizmi?","Fekal-oral: iflos qo'l, oziq-ovqat va suv orqali","Havo-tomchi: yo'talganda aerozol orqali","Transmissiv: kana va chivin chaqishi orqali","Parenteral: qon va in'ektsiyalar orqali","Ichak infeksiyasi."),
+  Q("Sonne shigellyozi uchun xos o'choq?","Sut mahsulotlari orqali ko'p kishida bir vaqtda","Doimiy suv omili, sekin va uzoq davom etadigan","Yopiq xonada havo orqali tarqaladigan","Faqat hasharotlar orqali yozda","Sonne ko'pincha sut-ovqat yo'li bilan."),
+  Q("Odatiy inkubatsiya muddati?","1–3 kun (12–72 soat)","10–14 kun","3–6 hafta","6–12 oy","Qisqa inkubatsiya."),
+  Q("Laboratoriya diagnostikasi?","Najasning bakteriologik ekmasi, antibiotikdan oldin","Qon ekmasi, kasallikning 3-haftasida","Siydik tahlili va VDRL","Balg'am mikroskopiyasi","Najasdan ajratish asosiy."),
+  Q("Bog'cha o'chog'ida chora majmuasi?","Kasallarni ajratish, kontaktlarni 7 kun kuzatish, dezinfeksiya","Bog'chani 30 kunga yopib, faqat emlash","Faqat davolash, kontaktlar kuzatuvsiz","Faqat suvni xlorlash","Manba, yo'l va moyil guruhga ta'sir."),
+  Q("Oziq-ovqat xodimi shigella tashuvchi bo'lsa?","Ishdan chetlatish, davolash, nazorat tahlilidan so'ng qaytarish","Ishda qoldirib, faqat qo'lqop kiydirish","Bir marta tekshirib, boshqa nazorat qilmaslik","Umrbod ishdan chetlatish va tekshirmaslik","Tashuvchi doimiy manba bo'lishi mumkin.")]);
+N_('typhoid','💧',"Ichak infeksiyasi: Qorin tifi va paratif","Shahar mahallasi, suv ta'minoti","Uzoq isitma, bosh og'rig'i, sustlik, ichak buzilishi. Qorin tifiga gumon.","1-hafta — 3, 2-hafta — 9, 3-hafta — 6. Jami 18.","18 bemor, bitta suv tarmog'idan foydalangan mahalla.","Qon ekmasida S. Typhi; suv namunasida ichak tayoqchasi ko'rsatkichi yuqori.","Suv tarmog'ini xlorlash, bemorlarni yotqizish, kontaktlarni 21 kun kuzatish, tashuvchilarni aniqlash.","Manba — ifloslangan suv; yuqish — fekal-oral.",
+ [g_win(10,14,"Qorin tifi."),g_obs(21,"Qorin tifi."),g_ve("Qorin tifiga qarshi Vi-emlash:"),g_dil("Qorin tifi o'chog'ida joriy dezinfeksiya uchun")],
+ [Q("Qorin tifi qaysi guruhga kiradi?","Antroponoz, fekal-oral (suv, oziq-ovqat)","Zoonoz, hayvon siydigi orqali","Sapronoz, tuproq sporalari orqali","Transmissiv, burga chaqishi orqali","Faqat odam kasallanadi."),
+  Q("Birinchi haftada eng ishonchli usul?","Qon ekmasi (gemokultura)","Faqat 3-haftada najas ekmasi","Siydik umumiy tahlili","Faqat rentgenografiya","Bakteriemiya davri."),
+  Q("Surunkali tashuvchi xavfi nimada?","Yillar davomida (o't pufagi) qo'zg'atuvchini chiqarib, doimiy manba bo'lishi","Faqat kasallik davrida qisqa vaqt xavfli","Faqat bolalarda uchraydi va xavfsiz","Boshqalarga yuqtirmaydi","Tashuvchilar ro'yxatga olinadi."),
+  Q("Bemor qachon chiqariladi?","Klinik tuzalgach va nazorat bakteriologik tekshiruvlari manfiy bo'lgach","Harorat tushishi bilan, tahlilsiz","7 kundan so'ng avtomatik","Faqat oila talabi bilan","Tashuvchilikni istisno qilish kerak."),
+  Q("Suv omilli o'choqda birinchi chora?","Manbani aniqlash, suvni xlorlashni kuchaytirish va dezinfeksiya","Faqat bemorlarni davolash","Aholini suvni tekshirmay karantinga olish","Faqat kontaktlarga antibiotik","Manbani to'xtatish."),
+  Q("Epidemik ko'rsatma bilan emlashda vosita?","Vi-polisaxaridli qorin tifi vaksinasi","BCG vaksinasi","KPK vaksinasi","Penta vaksinasi","Qorin tifiga maxsus vaksina.")]);
+N_('measles','🔴',"Nafas yo'li infeksiyasi: Qizamiq","Maktab, emlanmagan bolalar","Yuqori isitma, yo'tal, konyunktivit, Filatov–Koplik dog'lari, so'ng toshma.","1-hafta — 2, 2-hafta — 7, 3-hafta — 11. Jami 20.","20 o'quvchi; 16 nafari emlanmagan yoki bir dozali.","Zardobda IgM; tomoq surtmasida PCR musbat.","Kasallarni ajratish, kontaktlar emlash holatini tekshirish, 72 soatda shoshilinch KPK emlash, o'quvchilarni kuzatish.","Sabab — immunitet bo'shlig'i; havo-tomchi yo'li.",
+ [g_ve("Maktabda qizamiq: KPK bilan emlanganlar —"),g_hit('Qizamiq',12,18,95,99),g_obs(21,"Qizamiq."),g_need("Maktabdagi o'quvchilar (KPK qamrovi)")],
+ [Q("Qizamiq yuqish tezligi?","Havo-tomchi bilan juda tez, R₀ taxminan 12–18","Faqat oziq-ovqat orqali, R₀ 1–2","Faqat qon orqali, R₀ 3–4","Faqat tekkanda, R₀ 2–3","Eng yuqumli infeksiyalardan biri."),
+  Q("Yuqumli davr?","Toshmadan 4 kun oldin va 4 kun keyin","Faqat toshma kuni","Toshmadan keyin 3 hafta","Toshmadan oldin 1 kun","Kataral davrda ham yuqumli."),
+  Q("Odatiy inkubatsiya?","7–14 kun (21 kungacha)","6–12 soat","1–3 kun","2–3 oy","Qizamiq inkubatsiyasi."),
+  Q("Emlanmagan kontaktlarga shoshilinch chora?","Kontaktdan keyin 72 soat ichida KPK emlash","Antibiotik kursi tayinlash","Ikki hafta izolyatsiya, emlashsiz","Faqat vitamin berish","Erta emlash kasallikni oldini oladi."),
+  Q("O'zbekistonda KPK qachon beriladi?","12 oylikda KPK-1, 6 yoshda KPK-2; epidemik vaziyatda 6 oylikda ham","2, 3, 4 oylikda uch doza","Faqat 16 yoshda bir doza","9 oylikda KPK-1, 9 yoshda KPK-2","Milliy kalendar."),
+  Q("Laboratoriya tasdig'i?","Zardobda IgM va tomoq surtmasida PCR","Najas ekmasi va VDRL","Siydik antigeni va balg'am ekmasi","Faqat qon biokimyosi","Maxsus virusologik usullar.")]);
+N_('diphtheria','🗣️',"Nafas yo'li infeksiyasi: Difteriya","Bolalar bog'chasi","Tomoqda kul-oq pardalar, bo'yin shishishi, o'rtacha isitma. Difteriyaga gumon.","1-kun — 1, 3-kun — 1, 6-kun — 2. Jami 4.","4 bola; 3 nafari emlanmagan.","Tomoq va burun surtmasida toksigen C. diphtheriae.","Bemorni yotqizish, antitoksin, kontaktlarni 7 kun kuzatish va tekshirish, emlanmaganlarni emlash.","Manba — emlanmagan bola / tashuvchi; havo-tomchi yo'li.",
+ [g_obs(7,"Difteriya."),g_win(2,10,"Difteriya."),g_rr("Bolalar bog'chasida emlanmaganlar —","emlanmaganlar","emlanganlar"),g_ve("Difteriyaga qarshi emlash:")],
+ [Q("Difteriyaning yuqishi va xavfi?","Havo-tomchi; asosiy xavf — ekzotoksin","Fekal-oral; asosiy xavf — ichak yallig'lanishi","Transmissiv; asosiy xavf — qon yo'qotish","Parenteral; asosiy xavf — jigar shikastlanishi","Toksin yurak va nervlarni zararlaydi."),
+  Q("Inkubatsiya?","2–10 kun","6–12 soat","3–6 hafta","3–6 oy","Difteriya inkubatsiyasi."),
+  Q("Kontaktlarga chora?","7 kun kuzatuv va tomoq-burundan bakteriologik tekshiruv","1 kun kuzatuv, tekshiruvsiz","30 kun karantin, emlashsiz","Antibiotik, kuzatuvsiz","Tashuvchilarni topish."),
+  Q("Laboratoriya?","Tomoq va burun surtmasi, toksigen C. diphtheriae ekmasi","Najas va siydik ekmasi","Qon ekmasi, 3-haftada","Balg'am mikroskopiyasi","Toksigenlik aniqlanadi."),
+  Q("O'zbekistonda difteriyaga qarshi emlash?","Penta 2, 3, 4 oylikda; AKDS-4 16 oylikda; ADS-M 7 va 16 yoshda","BCG tug'ilganda, KPK 12 oylikda","Faqat OPV 2, 3, 4 oylikda","VPCH 9 yoshda, boshqasi yo'q","Milliy kalendar."),
+  Q("Kattalarda himoyani saqlash?","Har 10 yilda ADS-M revaksinatsiyasi","Har yili AKDS","Hayotda bir marta","Emlash kerak emas","Kattalar immuniteti pasayadi.")]);
+N_('pertussis','😮‍💨',"Nafas yo'li infeksiyasi: Ko'kyo'tal","Oila va bolalar poliklinikasi","Uzoq davom etuvchi xurujli yo'tal, qaytarilma nafas, qusish. Ko'kyo'talga gumon.","1-hafta — 3, 2-hafta — 5, 3-hafta — 4. Jami 12.","12 bola; 8 nafari 1 yoshgacha, to'liq emlanmagan.","Nazofaringeal surtmada PCR/ekma: B. pertussis.","Kasallarni ajratish, yosh kontaktlarni kuzatish, emlash holatini tekshirish, kechikkan dozalarni berish.","Manba — oiladagi katta yoshli kasal; havo-tomchi.",
+ [g_win(7,21,"Ko'kyo'tal."),g_obs(14,"Ko'kyo'tal."),g_sar,g_ve("Ko'kyo'talga qarshi emlash:")],
+ [Q("Qaysi davrda eng yuqumli?","Kataral davrda, xurujli yo'taldan oldin","Faqat tuzalgandan keyin","Faqat spazmatik davr oxirida","Faqat tungi paytda","Dastlabki 2 hafta."),
+  Q("Inkubatsiya?","7–14 kun (21 kungacha)","1–2 kun","6 hafta","3 oy","Ko'kyo'tal inkubatsiyasi."),
+  Q("Eng xavfli guruh?","Emlanmagan yoki to'liq emlanmagan chaqaloqlar","Sog'lom 20–30 yoshli kattalar","70 yoshdan oshganlar","10–15 yoshli o'quvchilar","Apnoe va asoratlar xavfi."),
+  Q("O'zbekistonda emlash?","Penta 2, 3, 4 oylikda va AKDS-4 16 oylikda","KPK 12 oylikda va 6 yoshda","OPV 2, 3, 4 oylikda","BCG tug'ilganda","Penta tarkibida AKDS."),
+  Q("Lab diagnostika?","Nazofaringeal surtmada PCR yoki ekma, dastlabki 3 haftada","Najas ekmasi, istalgan vaqt","Siydik antigeni, 3-oyda","Qon biokimyosi, bir marta","Erta davrda ijobiy."),
+  Q("O'choqda chora?","Ajratish, yosh kontaktlarni kuzatish, emlash holatini tekshirish","Faqat dezinfeksiya, ajratishsiz","Barchaga antibiotik, kuzatuvsiz","Hech narsa, o'z-o'zidan o'tadi","Moyil guruhni himoya qilish.")]);
+N_('mumps','😷',"Nafas yo'li infeksiyasi: Tepki (epidemik parotit)","Maktab","Quloq oldi so'lak bezlarining og'riqli shishishi, isitma.","1-hafta — 2, 2-hafta — 6, 3-hafta — 5. Jami 13.","13 o'quvchi, ko'pchiligi bir dozali KPK bilan emlangan.","Zardobda IgM va so'lakda PCR.","Kasallarni ajratish, emlash holatini tekshirish, KPK-2 muddatini nazorat qilish.","Manba — kasal bola; havo-tomchi.",
+ [g_win(11,21,"Tepki."),g_obs(21,"Tepki."),g_ve("Tepkiga qarshi (KPK) emlash:"),g_hit('Tepki',4,7,85,97)],
+ [Q("Tepki qanday yuqadi va nimani zararlaydi?","Havo-tomchi; so'lak bezlari","Fekal-oral; ichak","Transmissiv; teri","Parenteral; jigar","Qo'zg'atuvchi so'lak bezlarida."),
+  Q("Inkubatsiya?","11–21 kun (ko'pincha 16–18)","1–3 kun","6 hafta","3 oy","Uzoq inkubatsiya."),
+  Q("Asoratlar?","Orxit (o'smirlar), meningit, pankreatit","Faqat teri toshmasi","Faqat o'pka sili","Faqat ichak tutilishi","Bez organlari."),
+  Q("O'zbekistonda emlash?","KPK 12 oylikda va 6 yoshda","Penta 2, 3, 4 oylikda","ADS-M 7 va 16 yoshda","VPCH 9 yoshda","KPK tarkibida."),
+  Q("Ajratish?","Kasallikdan taxminan 9 kun ajratish","Harorat tushguncha 1 kun","21 kun karantin","Ajratish kerak emas","Standart amaliyot."),
+  Q("Kontaktlar?","Kuzatuv va emlash holatini tekshirish","Barchaga antibiotik","30 kunga maktabni yopish","Hech narsa","Emlanmaganlarni emlash.")]);
+N_('scarlet','🟥',"Nafas yo'li infeksiyasi: Skarlatina","Bolalar bog'chasi","Angina, mayda nuqtali toshma, \"olovli\" til, burun-lab uchburchagi oqarishi.","1-kun — 2, 3-kun — 4, 5-kun — 3. Jami 9.","9 bola; bitta guruh.","Tomoq surtmasida A guruh β-gemolitik streptokokk.","Kasallarni ajratish (kamida 10 kun), penitsillin, kontaktlarni 7 kun kuzatish.","Manba — kasal bola; havo-tomchi.",
+ [g_obs(7,"Skarlatina."),g_sar,g_rr("Bolalar bog'chasida kasal bola bilan bir xonada bo'lganlar —","bir xonada bo'lganlar","bo'lmaganlar"),g_af("Guruhda")],
+ [Q("Qo'zg'atuvchi va yuqish?","A guruh β-gemolitik streptokokk, havo-tomchi","Salmonella, fekal-oral","Vibrio cholerae, suv","Corynebacterium, teri","S. pyogenes."),
+  Q("Inkubatsiya?","2–7 kun (1–12 kun)","6–12 soat","3–4 hafta","2–3 oy","Qisqa."),
+  Q("Asoratlar?","Revmatizm va glomerulonefrit","Faqat soch to'kilishi","Faqat teri qurishi","Faqat ko'z yallig'lanishi","Immun asoratlar."),
+  Q("Davo va ajratish?","Penitsillin guruhi, kamida 10 kun ajratish","Vitaminlar, 1 kun ajratish","Antiviral dori, 30 kun ajratish","Shamollatish, ajratishsiz","Antibiotik muhim."),
+  Q("Bog'cha kontaktlari?","7 kun kuzatuv, tomoq ko'rigi, qabulni nazorat qilish","Barcha bolani uyga yuborish","Hech chora, o'z-o'zidan o'tadi","Faqat emlash","Kuzatuv asosiy."),
+  Q("Mavsumiylik?","Kuz–qish–bahor, bolalar jamoalarida","Faqat yozda, suv bo'yida","Faqat qishda kattalarda","Yil davomida faqat qishloqlarda","Yopiq jamoalarda.")]);
+N_('mening','🧠',"Nafas yo'li infeksiyasi: Meningokokk infeksiyasi","Umra qaytgan oila va kontaktlar","Yuqori isitma, bosh og'rig'i, bo'yin mushaklari qotishi, petexial toshma.","1-kun — 1, 2-kun — 1, 4-kun — 2. Jami 4.","4 kishi, xorijdan qaytgan oila va yaqin kontaktlar.","Orqa miya suyuqligida va qonda N. meningitidis.","Bemorlarni zudlik bilan yotqizish, kontaktlarga kimyoprofilaktika va 10 kun kuzatuv, Umra/Haj safaridan oldin emlash.","Manba — kasal yoki tashuvchi; havo-tomchi.",
+ [g_win(2,10,"Meningokokk infeksiyasi."),g_obs(10,"Meningokokk infeksiyasi."),g_sar,g_ppv("Meningokokk PCR skriningi:")],
+ [Q("Yuqishi va manba?","Havo-tomchi; sog'lom tashuvchilar muhim manba","Fekal-oral; faqat bemorlar manba","Transmissiv; hasharotlar manba","Parenteral; faqat shifoxonada","Tashuvchilik keng tarqalgan."),
+  Q("Inkubatsiya?","2–10 kun (ko'pincha 3–4)","6–12 soat","3–4 hafta","2–3 oy","Qisqa."),
+  Q("Kontaktlarga chora?","10 kun kuzatuv va kimyoprofilaktika (siprofloksatsin yoki rifampitsin)","1 kun kuzatuv","Faqat vitaminlar","Antibiotiksiz 30 kun karantin","Tez profilaktika."),
+  Q("Laboratoriya?","Orqa miya suyuqligi va qon ekmasi, PCR","Najas ekmasi","Siydik antigeni","Balg'am mikroskopiyasi","Meningit tasdig'i."),
+  Q("Umra va Haj safari uchun talab?","Safardan oldin MenACWY emlash sertifikati (Saudiya talabi, 2025)","Faqat BCG talab qilinadi","Faqat OPV talab qilinadi","Hech qanday emlash talab etilmaydi","O'zbekiston SES xavfi haqida ogohlantirgan."),
+  Q("Og'ir shaklning belgisi?","Tez rivojlanuvchi petexial toshma, isitma, kollaps","Faqat yengil burun oqishi","Faqat uzoq quruq yo'tal","Faqat tanada oq dog'lar","Meningokokksemiya.")]);
+N_('covid','😷',"Nafas yo'li infeksiyasi: COVID-19","Ofis va oila","Isitma, quruq yo'tal, hid yo'qolishi, nafas qisilishi.","1-kun — 2, 3-kun — 6, 5-kun — 11, 7-kun — 9. Jami 28.","28 xodim; oilaviy kontaktlar ham bor.","Nazofaringeal surtmada SARS-CoV-2 RNK (PCR).","Kasallarni ajratish, kontaktlarni kuzatish, niqob, shamollatish, emlash holatini baholash.","Manba — kasal va asimptomatik tashuvchi; havo-tomchi va aerozol.",
+ [g_hit('COVID-19',2.5,4,60,90),g_win(2,14,"COVID-19."),g_ppv("COVID-19 tez antigen testi:"),g_sar],
+ [Q("Yuqish yo'li?","Havo-tomchi va aerozol; asimptomatik tashuvchilar ham manba","Faqat fekal-oral","Faqat parenteral","Faqat transmissiv","Yopiq xonalarda xavf yuqori."),
+  Q("Inkubatsiya?","Odatda 2–14 kun (ko'pincha 5–6)","6–12 soat","3–6 hafta","2 oy","Keng oraliq."),
+  Q("Tasdiq usuli?","Nazofaringeal surtmada PCR","Najas ekmasi","Siydik tahlili","Qon biokimyosi yagona","Molekulyar usul."),
+  Q("Profilaktika?","Niqob, qo'l gigienasi, shamollatish, ajratish, emlash","Faqat qo'lqop","Faqat antibiotik","Faqat vitaminlar","Majmuaviy yondashuv."),
+  Q("Kasalxonada izolyatsiya?","Aerozolga qarshi himoya, shamollatish va himoya kiyimi","Umumiy palata, niqobsiz","Faqat kontakt izolyatsiya, niqobsiz","Izolyatsiyasiz","Aerozol xavfi."),
+  Q("Kontaktlarni kuzatish?","Inkubatsiya davrida tibbiy kuzatuv, alomatda test","Faqat bir marta so'rash","Kuzatuvsiz","Faqat antibiotik","Erta aniqlash.")]);
+N_('hiv','🧬',"Parenteral infeksiya: OIV/OITS","Davolash muassasasi, tibbiy xodim","Ish joyida igna sanchilishi. Manba OIV-musbat bemor.","Bitta xodim; kontakt kuni 0.","1 xodim, perkutan shikast (ignadan).","IFA skrining, musbat bo'lsa immunoblot/PCR bilan tasdiqlash.","Jarohatni yuvish, xabar berish, imkon qadar tezroq (72 soat ichida) postekspozitsion profilaktika, kuzatuv testlari.","Yuqish yo'li — qon (perkutan); OIV maishiy aloqada yuqmaydi.",
+ [g_cum,g_ppv("OIV IFA skrining testi:"),g_npv,g_or("OIV xavf omilini o'rganish:")],
+ [Q("OIV qanday yuqadi?","Qon, jinsiy aloqa va onadan bolaga; maishiy muloqotda yuqmaydi","Qo'l berib ko'rishish va umumiy idish orqali","Havo-tomchi yo'li bilan","Chivin chaqishi orqali","Asosiy yo'llar."),
+  Q("Ish joyida igna sanchilsa?","Jarohatni yuvish, xabar berish, 72 soat ichida profilaktika boshlash","1 hafta kutib tekshirish","Yod bilan kuydirib, xabar bermaslik","Profilaktika kerak emas","Vaqt muhim."),
+  Q("Skrining algoritmi?","IFA, musbat bo'lsa tasdiqlovchi (immunoblot/PCR)","Faqat tez-test yetarli","Bir marta IFA, tasdiqsiz","Faqat rentgen","Ikki bosqichli tekshiruv."),
+  Q("\"Deraza davri\" nima?","Antitanalar paydo bo'lguncha test manfiy bo'lishi mumkin bo'lgan davr","Kasallikning so'nggi bosqichi","Dori ishlash davri","Inkubatsiya muddatining oxirgi kuni","Erta infeksiya."),
+  Q("Onadan bolaga yuqishning oldi?","Homiladorlikda ART va chaqaloqqa profilaktika","Faqat emizishni davom ettirish","Hech narsa kerak emas","Faqat vitaminlar","Xavfni keskin kamaytiradi."),
+  Q("Tibbiy xodim uchun perkutan xavf?","Gepatit B xavfi OIV dan yuqori","OIV xavfi gepatit B dan yuqori","Ikkalasi 100%","Xavf yo'q","Shuning uchun HBV emlash muhim.")]);
+N_('malaria','🦟',"Parazitar kasallik: Bezgak","Xorijdan olib kelingan holat","Xorijdan qaytgan kishida davriy isitma, titroq, ter bosishi.","Bitta importlangan holat.","1 bemor, endemik mamlakatdan qaytgan.","Qalin tomchi va yupqa surtmada Plasmodium.","Bemorni ajratish va davolash, chivinlarga qarshi kurash, tarqalish xavfini baholash.","Importlangan holat; O'zbekiston 2018 yilda bezgakdan xoli deb sertifikatlangan.",
+ [g_para,g_win(9,14,"Bezgak (P. falciparum)."),g_ppv("Bezgak tez-testi:"),g_sar],
+ [Q("Bezgak qanday yuqadi?","Anofeles chivini chaqishi orqali","Ifloslangan ovqat orqali","Havo-tomchi yo'li bilan","Faqat qon quyish orqali","Transmissiv."),
+  Q("Diagnostika?","Qalin tomchi va yupqa surtma mikroskopiyasi","Najas ekmasi","Siydik antigeni","Faqat rentgen","Romanovskiy–Giemza."),
+  Q("Qalin tomchi va yupqa surtma farqi?","Qalin tomchi sezgirlikni, yupqa surtma turni aniqlashni yaxshilaydi","Ikkalasi bir xil","Qalin tomchi faqat turni aniqlaydi","Yupqa surtma faqat qon guruhi uchun","Ikkala usul to'ldiradi."),
+  Q("Importlangan holatda xavf?","Chivin mavjud hududda ikkilamchi tarqalish; ajratish va chivinlarga qarshi kurash","Odamdan odamga havo orqali","Xavf yo'q","Faqat emlash","Bezgak yo'qotilgan hududda qayta kiritish xavfi."),
+  Q("Safar oldi profilaktika?","Kimyoprofilaktika, repellent, to'rli parda","Faqat BCG","Faqat vitamin C","Hech narsa","Endemik hudud."),
+  Q("Chivinlarga qarshi chora?","Lichinkalarga qarshi ishlov va uchuvchi chivinlarga insektitsid","Faqat deratizatsiya","Faqat xlorlash","Faqat dezinfeksiya","Dezinseksiya.")]);
+N_('helminth','🪱',"Parazitar kasallik: Gelmintozlar","Bolalar bog'chasi, enterobioz va askaridoz","Bolalarda tungi qichish, bezovtalik, qorin og'rig'i.","Tekshiruv natijasi: 1-guruh — 12, 2-guruh — 9.","210 bola tekshirildi, 21 nafarida enterobioz tuxumlari.","Perianal qirindi (skotch-test) va najasda tuxumlar.","Barcha bolalarni tekshirish va davolash, yotoq/o'yinchoqlarni tozalash, qo'l gigienasi.","Yuqish — fekal-oral, o'z-o'zidan qayta zararlanish.",
+ [g_prev,g_rep,g_dil("Enterobioz o'chog'ida xonani namli tozalash uchun"),g_need("Bog'cha bolalari (degelmintizatsiya qamrovi)")],
+ [Q("Enterobiozni aniqlash usuli?","Perianal qirindi (skotch-test), bir necha marta","Bitta najas tahlili","Qon ekmasi","Siydik tahlili","Tuxumlar perianal sohada."),
+  Q("Enterobioz yuqishi?","Fekal-oral, o'z-o'zidan qayta zararlanish; qo'l gigienasi muhim","Faqat chivin va kana","Faqat havo-tomchi","Faqat qon","Autoinvaziya."),
+  Q("Askaridoz tuxumlari?","Tuproqda 2–3 haftada invaziv bo'ladi; yuvilmagan sabzavot","Darhol bemordan yuqadi","Oraliq xo'jayin — it","Faqat go'sht orqali","Geogelmint."),
+  Q("Ekinokokkozda xo'jayinlar?","Itlar yakuniy, odam oraliq xo'jayin","Odam yakuniy, it oraliq","Cho'chqa yakuniy","Chivin xo'jayin","Biogelmint."),
+  Q("Bog'cha o'chog'ida chora?","Barcha bolalarni tekshirish, davolash, tozalash va gigiena","Faqat kasalni davolash","Bog'chani 60 kun yopish","Faqat kiyim yuvishsiz","Jamoaviy yondashuv."),
+  Q("Biogelmint nima?","Oraliq xo'jayin orqali rivojlanadi (masalan, ekinokokk)","Faqat tuproqda rivojlanadi","Faqat suvda rivojlanadi","Faqat odamda","Oraliq xo'jayin bor.")]);
+N_('qkgi','🕷️',"O'ta xavfli infeksiya: QKGI (Qrim–Kongo gemorragik isitmasi)","Chorvadorlar, kana mavsumi","Yuqori isitma, qon ketish, petexiyalar. Kana chaqishi yoki chorva so'yishi anamnezda.","Aprel — 1, may — 3, iyun — 4. Jami 8.","8 kishi: chorvadorlar va so'yuvchilar.","Qonda PCR (RNK) va IgM antitanalar.","Bemorni qat'iy izolyatsiya qilish, himoya kiyimi, kontaktlarni 14 kun kuzatish, kanalarga qarshi ishlov.","Manba — kana va chorva; yuqish — chaqish, qon bilan kontakt, ichki yuqish.",
+ [g_obs(14,"QKGI."),g_win(1,9,"QKGI."),g_mort,g_rr("Chorvadorlarda kana chaqqanlar —","kana chaqqanlar","chaqmaganlar")],
+ [Q("QKGI yuqish yo'llari?","Kana (Hyalomma) chaqishi, chorva va bemor qoni bilan kontakt; ichki yuqish","Faqat oziq-ovqat","Faqat havo-tomchi","Faqat suv","Shifoxonada ehtiyot kerak."),
+  Q("Inkubatsiya?","1–9 kun (kana chaqqanda qisqaroq)","1 soat","3 hafta","3 oy","Qisqa."),
+  Q("Xavf guruhi?","Chorvadorlar, so'yuvchilar, tibbiyot xodimlari","Faqat bolalar","Ofis xodimlari","Sportchilar","Kasbiy ta'sir."),
+  Q("Mavsumiylik?","Bahor–yoz, kana faolligi davrida","Faqat qishda","Faqat kuz oxirida","Yil bo'yi bir xil","Kana faolligi."),
+  Q("Bemor parvarishi?","Qat'iy izolyatsiya, himoya kiyimi, qon va ajratmalar bilan ehtiyot","Umumiy palata","Uyda parvarish","Izolyatsiyasiz","Ichki yuqish xavfi."),
+  Q("Laboratoriya?","Qonda PCR va IgM antitanalar","Najas ekmasi","Balg'am ekmasi","Siydik tahlili","Virusli infeksiya.")]);
+N_('biowar','☣️',"Harbiy epidemiologiya: Bakteriologik (biologik) qurol","Qo'shin joylashgan hudud","Hududda bir vaqtda noodatiy kasallik bilan ko'p odam kasallangan; aerozol hosil qiluvchi vosita gumon qilinadi.","1-soat — 3, 6-soat — 11, 12-soat — 25. Jami 39.","39 harbiy xizmatchi; kasallik shu hududga xos emas.","Namunalarda gumon qilingan qo'zg'atuvchi, maxsus indikatsiya natijasi.","Himoya vositalarini kiyish, hududni belgilash, namuna olish, ajratish, tezkor xabar berish, dezinfeksiya.","Sun'iy epidemik jarayon; aerozol yo'li.",
+ [g_growth,g_proj,g_median('soat',12,40),g_win(1,6,"Gumon qilingan sun'iy chuma o'chog'i.")],
+ [Q("Bakteriologik qurol nima?","Qo'zg'atuvchi yoki toksinni qurol sifatida qo'llash; sun'iy epidemik jarayon","Faqat tabiiy epidemiya","Faqat kimyoviy zaharlar","Faqat radioaktiv moddalar","Maqsadli zararlash."),
+  Q("Qo'llanishdan guvohlik beruvchi belgilar?","Bir vaqtda ko'p odamda noodatiy kasallik, nomavsumiy yoki nomuvofiq hudud","Mavsumda sporadik holatlar","Bitta yakka holat","Bolalarda yengil shamollash","Anomal epidemiologik belgilar."),
+  Q("Aerozol qo'llanishi oqibati?","Keng maydonda ko'p odamning bir vaqtda zararlanishi","Faqat kontaktli kichik guruh","Faqat suv orqali","Hech kimga ta'sir qilmaydi","Aerozol bulut."),
+  Q("Birinchi chora?","Himoya vositalarini kiyish, hududni belgilash, namuna olish va xabar berish","Hududni ochiq qoldirib davolash","Namunasiz dezinfeksiya","Aholini tahlilsiz ko'chirish","Tezkor ketma-ketlik."),
+  Q("Qaysi qo'zg'atuvchilar qurol sifatida xavfli hisoblanadi?","Kuydirgi, o'lat, tulyaremiya, chechak","Faqat shamollash viruslari","Faqat ichak gelmintlari","Faqat zamburug' kasalliklar","Yuqori xavfli agentlar."),
+  Q("Himoya qanday tashkil qilinadi?","Shaxsiy va kollektiv himoya, maxsus profilaktika, dezinfeksiya","Faqat niqob","Faqat vitaminlar","Himoya shart emas","Majmuali himoya.")]);
+N_('razvedka','🧭',"Harbiy epidemiologiya: Sanitariya-epidemiologik va bakteriologik razvedka","Qo'shin hududi","Razvedka guruhi yangi hududda epidemiologik holatni baholamoqda va namuna olmoqda.","Razvedka marshruti: bir necha nuqta.","Guruh: epidemiolog, laborant, dezinfektor.","Havo, suv va tuproqdan namunalar; ekspress usullar.","Marshrutni rejalash, namunalarni yorliqlash, sovuq zanjirda yuborish, natijani xabar qilish.","Razvedka ma'lumoti chora-tadbirlarni asoslaydi.",
+ [g_route,g_flea,g_sensadj,g_dil("Razvedka paytida jihozlarni zararsizlantirish uchun")],
+ [Q("Sanitariya-epidemiologik razvedkaning maqsadi?","Hududning epidemiologik holatini baholash va xavf manbalarini erta aniqlash","Faqat davolash","Faqat emlash","Faqat dezinfeksiya","Ma'lumot to'plash."),
+  Q("Bakteriologik razvedka nimani aniqlaydi?","Qo'llangan bakterial vositani: maxsus va nomaxsus indikatsiya bilan","Faqat suv xlorlanishini","Faqat tibbiy ko'rikni","Faqat dezinseksiyani","Qo'zg'atuvchini aniqlash."),
+  Q("Nomaxsus indikatsiya?","Aerozol/zarracha bulutini va anomal belgilarni turini aniqlamay, tezkor topish","Qo'zg'atuvchi turini PCR bilan tasdiqlash","Bemorni davolash","Faqat suv tahlili","Dastlabki signal."),
+  Q("Maxsus indikatsiya?","Qo'zg'atuvchi turini aniqlash: namuna, ekspress usullar, keyin ekma","Faqat ko'z bilan ko'rik","Faqat hid bilan","Faqat termometr","Tur aniqlanadi."),
+  Q("Namuna olishda?","Havo, tuproq, suv, oziq-ovqat; to'g'ri yorliq va sovuq zanjir","Namuna yorliqsiz yuborish","Faqat bitta namuna","Namunalarni iliq saqlash","Tahlil ishonchli bo'lishi uchun."),
+  Q("Razvedka guruhi tarkibi?","Epidemiolog, laborant, dezinfektor, himoya vositalarida","Faqat shifokor, himoyasiz","Faqat haydovchi","Faqat qo'riqchi","Mutaxassislar majmui.")]);
+OB_GROUPS.length=0;
+OB_GROUPS.push(
+ {t:"1. Dezinfeksiya, dezinseksiya, deratizatsiya va sterilizatsiya",ref:"amaliy mashg'ulot № 2",ids:['disinfection']},
+ {t:"2. O'tkir ichak infeksiyalari (shigellyoz, salmonellyoz, tif-paratif)",ref:"amaliy mashg'ulot № 3",ids:['food','shigella','typhoid']},
+ {t:"3. Nafas yo'li infeksiyalari",ref:"amaliy mashg'ulot № 4",ids:['air','measles','diphtheria','pertussis','mumps','scarlet','mening','covid']},
+ {t:"4. Virusli gepatitlar, OITS va parenteral infeksiyalar (qutirish — zoonoz parenteral)",ref:"amaliy mashg'ulot № 5",ids:['par','hiv','rabies']},
+ {t:"5. Sapronozlar va parazitar kasalliklar",ref:"amaliy mashg'ulot № 6",ids:['sapronoz','tetanus','malaria','helminth']},
+ {t:"6. Karantin va o'ta xavfli infeksiyalar",ref:"amaliy mashg'ulot № 7",ids:['ooi_cholera','ooi_plague','ooi_anthrax','qkgi','ooi_tularemia']},
+ {t:"7. Harbiy epidemiologiya, bakteriologik qurol va razvedka",ref:"amaliy mashg'ulot № 8",ids:['military','biowar','razvedka']}
+);
+
+/* ===== Mavzular tartibi — kafedraning kalendar-tematik rejasiga muvofiq ===== */
+
+(()=>{ const order=['design','screen','vacc','c1','c2','c3','c4','c5','c6','c7','hai'];
+  const m={}; ST_TOPICS.forEach(t=>m[t.id]=t); ST_TOPICS.length=0; order.forEach(id=>ST_TOPICS.push(m[id]));
+  ST_TOPICS.forEach(t=>{ if(t.id==='design'||t.id==='screen') t.group="1. Epidemiologik tadqiqot usullari (amaliy mashg'ulot № 1)"; else if(t.id==='hai') t.group="3. Kasalxona ichi infeksiyalari (amaliy mashg'ulot № 5)"; else t.group="2. Emlash ishlarini tashkillashtirish, rejali emlash kalendari — O'zbekiston (amaliy mashg'ulot № 2)"; });
+})();
+
+/* ================= INIT ================= */
+(function init(){
+  ['CAGR','RR','OR','Sezgirlik','CFR'].forEach(l=>{
+    const b=document.createElement('button'); b.className='btn ghost'; b.textContent=l; b.onclick=()=>mAsk(l);
+    document.getElementById('mQuick').appendChild(b);
+  });
+  mBot("Salom! Men formulalar va atamalar bo'yicha yordam beraman. Qaysi ko'rsatkich kerak?");
+  renderNameInfo();
+})();
+</script>
+</body>
+</html>
